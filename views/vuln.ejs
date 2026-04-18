@@ -1,7 +1,244 @@
 <!DOCTYPE html>
 <html>
-    <head></head>
-    <body>
+<head>
+    <meta charset="UTF-8">
+    <title>Vulnerability Examples</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+        /* Sidebar */
+        .sidebar {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .sidebar h2 {
+            margin-bottom: 15px;
+            color: #555;
+        }
+        .topic-btn {
+            display: inline-block;
+            padding: 10px 20px;
+            margin: 5px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .topic-btn:hover {
+            background: #0056b3;
+        }
+        .topic-btn.active {
+            background: #28a745;
+        }
+        /* Content area */
+        .content {
+            background: white;
+            border-radius: 8px;
+            padding: 30px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .example-title {
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: #333;
+        }
+        .example-code {
+            background: #f4f4f4;
+            border-left: 4px solid #007bff;
+            padding: 15px;
+            margin: 15px 0;
+            font-family: monospace;
+            white-space: pre-wrap;
+            overflow-x: auto;
+        }
+        .description {
+            margin: 15px 0;
+            line-height: 1.6;
+            color: #555;
+        }
+        .toggle-buttons {
+            margin: 20px 0;
+        }
+        .toggle-btn {
+            padding: 10px 20px;
+            margin-right: 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .toggle-btn.insecure {
+            background: #dc3545;
+            color: white;
+        }
+        .toggle-btn.secure {
+            background: #28a745;
+            color: white;
+        }
+        .toggle-btn:hover {
+            opacity: 0.8;
+        }
+        .badge {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+        .badge.insecure {
+            background: #dc3545;
+            color: white;
+        }
+        .badge.secure {
+            background: #28a745;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔒 Vulnerability Examples</h1>
 
-    </body>
+        <!-- Sidebar with topics -->
+        <div class="sidebar">
+            <h2>Select Vulnerability Topic</h2>
+            <div id="topicList"></div>
+        </div>
+
+        <!-- Main content area -->
+        <div class="content">
+            <div id="main">
+                <div class="example-title">Select a topic to view examples</div>
+                <div class="description">Choose a vulnerability from the sidebar, then toggle between insecure and secure examples.</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Get data from server
+        let vulnerabilities = <%- JSON.stringify(locals.vulnerabilities || []) %>;
+
+        // Debug
+        console.log('Vulnerabilities loaded:', vulnerabilities);
+
+        // Current state
+        let currentVuln = null;
+        let currentType = 'insecure_example'; // 'insecure_example' or 'secure_example'
+
+        // Helper to escape HTML
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str).replace(/[&<>]/g, function(m) {
+                if (m === '&') return '&amp;';
+                if (m === '<') return '&lt;';
+                if (m === '>') return '&gt;';
+                return m;
+            });
+        }
+
+        // Display the current example
+        function displayCurrentExample() {
+            if (!currentVuln) return;
+
+            const exampleText = currentType === 'insecure_example'
+                ? currentVuln.insecure_example
+                : currentVuln.secure_example;
+
+            const badgeText = currentType === 'insecure_example' ? '⚠️ INSECURE EXAMPLE' : '✅ SECURE EXAMPLE';
+            const badgeClass = currentType === 'insecure_example' ? 'insecure' : 'secure';
+
+            const html = `
+                <div class="badge ${badgeClass}">${badgeText}</div>
+                <div class="example-title">${escapeHtml(currentVuln.name || 'Vulnerability')}</div>
+                <div class="description">${escapeHtml(currentVuln.description || 'No description available')}</div>
+                <div class="toggle-buttons">
+                    <button class="toggle-btn insecure" onclick="setExampleType('insecure_example')">Show Insecure Example</button>
+                    <button class="toggle-btn secure" onclick="setExampleType('secure_example')">Show Secure Example</button>
+                </div>
+                <div class="example-code">${escapeHtml(exampleText || 'No example available')}</div>
+            `;
+
+            document.getElementById('main').innerHTML = html;
+        }
+
+        // Switch between insecure and secure examples
+        function setExampleType(type) {
+            currentType = type;
+            displayCurrentExample();
+        }
+
+        // Display a vulnerability topic
+        function showVulnerability(vuln) {
+            if (!vuln) return;
+            currentVuln = vuln;
+            currentType = 'insecure_example'; // Reset to insecure when changing topics
+            displayCurrentExample();
+
+            // Update active button in sidebar
+            document.querySelectorAll('.topic-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (parseInt(btn.dataset.id) === vuln.id) {
+                    btn.classList.add('active');
+                }
+            });
+        }
+
+        // Build sidebar buttons
+        function buildSidebar() {
+            const container = document.getElementById('topicList');
+
+            if (!vulnerabilities || vulnerabilities.length === 0) {
+                container.innerHTML = '<div style="color:#999;">No vulnerabilities found</div>';
+                return;
+            }
+
+            container.innerHTML = '';
+
+            for (let i = 0; i < vulnerabilities.length; i++) {
+                const vuln = vulnerabilities[i];
+                const btn = document.createElement('button');
+                btn.className = 'topic-btn';
+                btn.textContent = vuln.name || 'Untitled';
+                btn.setAttribute('data-id', vuln.id);
+                btn.addEventListener('click', (function(v) {
+                    return function() { showVulnerability(v); };
+                })(vuln));
+                container.appendChild(btn);
+            }
+
+            // Show first vulnerability by default
+            if (vulnerabilities.length > 0) {
+                showVulnerability(vulnerabilities[0]);
+            }
+        }
+
+        // Make functions global for onclick handlers
+        window.setExampleType = setExampleType;
+
+        // Initialize
+        buildSidebar();
+    </script>
+</body>
 </html>

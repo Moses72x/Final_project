@@ -29,7 +29,8 @@ app.get("/main", async (req, res) => {
 });
 
 app.get("/vuln", async (req, res) => {
-  res.render("vuln");
+  const { data, error } = await supabase.from("vulnerability").select("*");
+  res.render("vuln", { vulnerabilities: data });
 });
 
 app.listen(port, () => {
