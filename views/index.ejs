@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>SecureCodeHub home</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(145deg, #f6f9fc 0%, #eef2f5 100%);
+            font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem 1.5rem;
+        }
+
+        /* main glass-card container */
+        .hub-container {
+            max-width: 1300px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        /* header area */
+        .hero {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #1A2A3F, #2C4C6C);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            letter-spacing: -0.02em;
+            text-shadow: 0 2px 5px rgba(0,0,0,0.02);
+        }
+
+        .hero .tagline {
+            font-size: 1.2rem;
+            color: #4a5b6e;
+            margin-top: 0.6rem;
+            font-weight: 450;
+            border-bottom: 1px solid rgba(100, 120, 140, 0.2);
+            display: inline-block;
+            padding-bottom: 0.3rem;
+        }
+
+        /* three paths grid */
+        .paths-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2rem;
+            justify-content: center;
+            align-items: stretch;
+            margin: 2rem 0 3rem;
+        }
+
+        /* card style — each path is an interactive "door" */
+        .path-card {
+            flex: 1;
+            min-width: 260px;
+            max-width: 340px;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(2px);
+            border-radius: 2.5rem;
+            box-shadow: 0 20px 35px -12px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0,0,0,0.02);
+            transition: all 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+            border: 1px solid rgba(255,255,255,0.6);
+            overflow: hidden;
+        }
+
+        .path-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 30px 45px -15px rgba(0, 0, 0, 0.2);
+            background: white;
+            border-color: rgba(80, 140, 180, 0.3);
+        }
+
+        /* interactive link — full card clickable but semantic */
+        .card-link {
+            text-decoration: none;
+            display: block;
+            padding: 2rem 1.5rem 2rem 1.5rem;
+            height: 100%;
+            width: 100%;
+            color: inherit;
+        }
+
+        /* icon & emoji area */
+        .path-icon {
+            font-size: 3.8rem;
+            margin-bottom: 1.2rem;
+            display: inline-block;
+            background: rgba(230, 242, 255, 0.6);
+            padding: 0.6rem;
+            border-radius: 2rem;
+            line-height: 1;
+        }
+
+        .path-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin: 0.5rem 0 0.75rem;
+            letter-spacing: -0.3px;
+        }
+
+        .path-desc {
+            color: #3e5a6b;
+            line-height: 1.5;
+            font-size: 0.95rem;
+            margin-bottom: 1.2rem;
+        }
+
+        .path-arrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-weight: 500;
+            color: #2c6c9e;
+            border-bottom: 1.5px solid #bdd4e4;
+            transition: gap 0.2s;
+        }
+
+        .path-card:hover .path-arrow {
+            gap: 0.65rem;
+            border-bottom-color: #2c6c9e;
+        }
+
+        /* divider */
+        .divider {
+            width: 80px;
+            height: 3px;
+            background: linear-gradient(90deg, #b9d0e0, #8aaec0, #b9d0e0);
+            border-radius: 3px;
+            margin: 0.5rem auto 0;
+        }
+
+        /* footer note */
+        .info-note {
+            text-align: center;
+            margin-top: 2rem;
+            font-size: 0.85rem;
+            color: #5f7f97;
+            background: rgba(255,255,240,0.5);
+            padding: 0.8rem 1.5rem;
+            border-radius: 60px;
+            display: inline-block;
+            backdrop-filter: blur(4px);
+        }
+
+        footer {
+            margin-top: 2rem;
+            text-align: center;
+            width: 100%;
+        }
+
+        /* responsive touch */
+        @media (max-width: 750px) {
+            .hero h1 { font-size: 2.2rem; }
+            .paths-grid { gap: 1.2rem; }
+            .path-card { min-width: 240px; }
+        }
+
+        @media (max-width: 550px) {
+            .path-title { font-size: 1.5rem; }
+            .card-link { padding: 1.5rem 1rem; }
+        }
+    </style>
+</head>
+<body>
+<div class="hub-container">
+    <div class="hero">
+        <h1>SecureCodeHub</h1>
+        <div class="tagline">choose your learning path</div>
+        <div class="divider"></div>
+    </div>
+
+    <div class="paths-grid">
+        <div class="path-card">
+            <a href="/main" class="card-link" aria-label="Go to Serene Garden page">
+                <div class="path-title">Main Learning Path</div>
+                <div class="path-desc">learn all you need to know about security topics</div>
+                <span class="path-arrow">explore security topics →</span>
+            </a>
+        </div>
+
+        <div class="path-card">
+            <a href="/vuln" class="card-link" aria-label="Go to Creative Studio page">
+                <div class="path-title">Vulnerability Library</div>
+                <div class="path-desc">learn all you need to know about security vulnerabilities and how they can be exploited by attackers</div>
+                <span class="path-arrow">explore vulnerability library →</span>
+            </a>
+        </div>
+
+        <div class="path-card">
+            <a href="/quiz" class="card-link" aria-label="Go to Cosmic Horizon page">
+                <div class="path-title">Quiz Library</div>
+                <div class="path-desc">Test your knowledge of security topics and vulnerabilities</div>
+                <span class="path-arrow">explore quiz library →</span>
+            </a>
+        </div>
+    </div>
+</div>
+
+<footer>
+    <p style="font-size: 0.75rem; color: #7c95ab;">test footer</p>
+</footer>
+</body>
+</html>
+<%= locals.test %>

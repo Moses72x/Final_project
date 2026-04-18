@@ -1,0 +1,107 @@
+<!doctype html>
+<html>
+    <head>
+        <title>Simple Quiz</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                max-width: 500px;
+                margin: 50px auto;
+                padding: 20px;
+                text-align: center;
+            }
+            .question {
+                font-size: 24px;
+                margin-bottom: 20px;
+            }
+            .options button {
+                display: block;
+                width: 100%;
+                padding: 10px;
+                margin: 10px 0;
+                font-size: 18px;
+                cursor: pointer;
+                background-color: #f0f0f0;
+                border: 1px solid #ddd;
+                border-radius: 5px;
+            }
+            .options button:hover {
+                background-color: #e0e0e0;
+            }
+            .result {
+                font-size: 20px;
+                margin-top: 20px;
+                font-weight: bold;
+            }
+            .score {
+                font-size: 18px;
+                margin-top: 10px;
+                color: #666;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>Simple Quiz</h1>
+
+        <div class="question" id="question">Loading...</div>
+
+        <div class="options" id="options"></div>
+
+        <div class="result" id="result"></div>
+        <div class="score" id="score"></div>
+
+        <script>
+
+            const quizData = <%- JSON.stringify(locals.questions) %>;
+
+            console.log(quizData[0]);
+
+            let currentQuestion = 0;
+            let score = 0;
+
+            function loadQuestion() {
+                const questionEl = document.getElementById("question");
+                const optionsEl = document.getElementById("options");
+                const resultEl = document.getElementById("result");
+
+                resultEl.innerHTML = "";
+
+                if (currentQuestion < quizData.length) {
+                    const q = quizData[currentQuestion];
+                    questionEl.textContent = q.question_text;
+
+                    let optionsHtml = "";
+                    q.options.forEach((option) => {
+                        optionsHtml += `<button onclick="checkAnswer(${option})">${option}</button>`;
+                    });
+                    optionsEl.innerHTML = optionsHtml;
+                } else {
+                    questionEl.textContent = "Quiz Complete!";
+                    optionsEl.innerHTML = "";
+                    document.getElementById("score").innerHTML =
+                        `You got ${score} out of ${quizData.length} correct!`;
+                }
+            }
+
+            function checkAnswer(selected) {
+                const correct = quizData[currentQuestion].correct_option;
+                const resultEl = document.getElementById("result");
+
+                if (String(selected) === correct) {
+                    score++;
+                    resultEl.innerHTML = "Correct!";
+                    resultEl.style.color = "green";
+                } else {
+                    resultEl.innerHTML = "Wrong!";
+                    resultEl.style.color = "red";
+                }
+
+                currentQuestion++;
+
+                setTimeout(loadQuestion, 1000);
+            }
+
+            loadQuestion();
+        </script>
+    </body>
+</html>

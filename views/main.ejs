@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Topics</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            height: 100vh;
+        }
+        .sidebar {
+            width: 250px;
+            background: #2c3e50;
+            color: white;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        .sidebar h2 {
+            margin-bottom: 20px;
+        }
+        .topic-btn {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 8px;
+            background: #34495e;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-align: left;
+        }
+        .topic-btn:hover {
+            background: #3498db;
+        }
+        .topic-btn.active {
+            background: #3498db;
+        }
+        .content {
+            flex: 1;
+            padding: 30px;
+            background: #ecf0f1;
+            overflow-y: auto;
+        }
+        .title {
+            font-size: 28px;
+            margin-bottom: 20px;
+            color: #2c3e50;
+        }
+        .content-text {
+            font-size: 16px;
+            line-height: 1.5;
+            color: #34495e;
+            white-space: pre-wrap;
+        }
+        .empty {
+            color: #7f8c8d;
+            text-align: center;
+            margin-top: 50px;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <h2> Security Topics</h2>
+        <div id="topicList"></div>
+    </div>
+    <div class="content">
+        <div id="main">
+            <div class="title">Select a topic</div>
+            <div class="content-text">Click a topic from the sidebar.</div>
+        </div>
+    </div>
+
+    <script>
+        // Get the data from server - handle both 'topics' and 'topic' variable names
+        let topics = [];
+
+        // Try to get topics from locals.topics or locals.topic
+        <% if (typeof locals.topics !== 'undefined') { %>
+            topics = <%- JSON.stringify(locals.topics) %>;
+        <% } else if (typeof locals.topic !== 'undefined') { %>
+            // If it's a single object, wrap it in an array
+            const topicData = <%- JSON.stringify(locals.topic) %>;
+            if (Array.isArray(topicData)) {
+                topics = topicData;
+            } else if (topicData && typeof topicData === 'object') {
+                topics = [topicData];
+            } else {
+                topics = [];
+            }
+        <% } %>
+
+        // Debug: log to browser console
+        console.log('Topics received:', topics);
+
+        // Helper to escape HTML
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str).replace(/[&<>]/g, function(m) {
+                if (m === '&') return '&amp;';
+                if (m === '<') return '&lt;';
+                if (m === '>') return '&gt;';
+                return m;
+            });
+        }
+
+        // Display a topic
+        function showTopic(topic) {
+            if (!topic) {
+                console.warn('showTopic called with no topic');
+                return;
+            }
+            console.log('Showing topic:', topic);
+            document.getElementById('main').innerHTML = `
+                <div class="title">${escapeHtml(topic.title)}</div>
+                <div class="content-text">${escapeHtml(topic.content || 'No content').replace(/\n/g, '<br>')}</div>
+            `;
+            // Update active button
+            document.querySelectorAll('.topic-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (parseInt(btn.dataset.id) === topic.id) {
+                    btn.classList.add('active');
+                }
+            });
+        }
+
+        // Build sidebar buttons
+        function buildSidebar() {
+            const container = document.getElementById('topicList');
+            if (!topics || topics.length === 0) {
+                container.innerHTML = '<div style="color:#95a5a6;">No topics found</div>';
+                return;
+            }
+
+            // Clear container
+            container.innerHTML = '';
+
+            // Create buttons
+            for (let i = 0; i < topics.length; i++) {
+                const t = topics[i];
+                const btn = document.createElement('button');
+                btn.className = 'topic-btn';
+                btn.textContent = t.title || 'Untitled';
+                btn.setAttribute('data-id', t.id);
+                btn.addEventListener('click', (function(topic) {
+                    return function() { showTopic(topic); };
+                })(t));
+                container.appendChild(btn);
+            }
+
+            // Show first topic by default
+            if (topics.length > 0) {
+                showTopic(topics[0]);
+            }
+        }
+
+        // Run when page loads
+        buildSidebar();
+    </script>
+</body>
+</html>
