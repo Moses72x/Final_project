@@ -1,22 +1,20 @@
 import OpenAI from "openai";
-import dotenv from "dotenv";
-
-dotenv.config();
 
 const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
+  apiKey: "AIzaSyBPXtOgKKDdoiRsX2_sDgzo80bV9HZAZkk", // Use your Google AI Studio API key
+  baseURL: "https://generativelanguage.googleapis.com/v1beta/", // Google's OpenAI-compatible endpoint
 });
 
 async function main() {
-  const completion = await openai.chat.completions.create({
-    model: "gpt-4o-mini",
+  const response = await openai.chat.completions.create({
+    model: "gemini-2.0-flash", // Specify the Gemini model
     messages: [
-      { role: "system", content: "You are a helpful assistant." },
-      { role: "user", content: "Say hi" },
+      { role: "system", content: "You are a helpful coding assistant." },
+      { role: "user", content: "How do I create a promise in JavaScript?" },
     ],
   });
 
-  console.log(completion.choices[0].message.content);
+  console.log(response.choices[0].message);
 }
 
 main();

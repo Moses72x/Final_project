@@ -2,4 +2,7 @@
 node_modules/
 .env
 .DS_Store
+ai.js
+ai1.js
+index.html
 *.log
