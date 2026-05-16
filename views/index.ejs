@@ -5,12 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>SecureCodeHub | Cybersecurity Learning Hub</title>
     <style>
+        /* Reset default browser margins and padding for consistent rendering */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
 
+        /* Body styling with gradient background matching SecureCodeHub theme */
         body {
             background: linear-gradient(145deg, #f0f4f8 0%, #e6edf4 100%);
             font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, sans-serif;
@@ -22,19 +24,20 @@
             padding: 2rem 1.5rem;
         }
 
-        /* main glass-card container */
+        /* Main container to center and constrain content width */
         .hub-container {
             max-width: 1300px;
             width: 100%;
             margin: 0 auto;
         }
 
-        /* header area */
+        /* Header area styling */
         .hero {
             text-align: center;
             margin-bottom: 2rem;
         }
 
+        /* Main title with gradient text effect */
         .hero h1 {
             font-size: 3rem;
             font-weight: 700;
@@ -46,6 +49,7 @@
             text-shadow: 0 2px 5px rgba(0,0,0,0.02);
         }
 
+        /* Tagline/subtitle styling */
         .hero .tagline {
             font-size: 1.2rem;
             color: #2c5a7a;
@@ -56,7 +60,7 @@
             padding-bottom: 0.3rem;
         }
 
-        /* PURPOSE SECTION — simple, elegant, blue/white/black theme */
+        /* Purpose section - explains website mission */
         .purpose-section {
             background: white;
             border-radius: 2rem;
@@ -67,12 +71,14 @@
             transition: all 0.2s ease;
         }
 
+        /* Inner container for purpose section content */
         .purpose-inner {
             max-width: 900px;
             margin: 0 auto;
             text-align: center;
         }
 
+        /* Purpose section title styling */
         .purpose-title {
             font-size: 1.6rem;
             font-weight: 600;
@@ -84,6 +90,7 @@
             margin-bottom: 1rem;
         }
 
+        /* Circular icon next to purpose title */
         .purpose-title span {
             background: #0B2B3F;
             color: white;
@@ -96,6 +103,7 @@
             border-radius: 50%;
         }
 
+        /* Purpose text paragraph styling */
         .purpose-text {
             font-size: 1.08rem;
             line-height: 1.5;
@@ -103,6 +111,7 @@
             margin-bottom: 0.5rem;
         }
 
+        /* Highlight box at bottom of purpose section */
         .purpose-highlight {
             background: #eef4fc;
             padding: 0.8rem 1.2rem;
@@ -115,7 +124,7 @@
             border-left: 3px solid #1C7EB5;
         }
 
-        /* three paths grid */
+        /* Grid container for the three feature cards */
         .paths-grid {
             display: flex;
             flex-wrap: wrap;
@@ -125,7 +134,7 @@
             margin: 2rem 0 2rem;
         }
 
-        /* card style — blue, white, black accents */
+        /* Individual card styling */
         .path-card {
             flex: 1;
             min-width: 260px;
@@ -140,6 +149,7 @@
             color: #0B2B3F;
         }
 
+        /* Card hover effect - lifts card and adds shadow */
         .path-card:hover {
             transform: translateY(-6px);
             box-shadow: 0 24px 40px -14px rgba(12, 52, 78, 0.2);
@@ -147,7 +157,7 @@
             background: #FFFFFF;
         }
 
-        /* interactive link — full card clickable but semantic */
+        /* Makes entire card clickable */
         .card-link {
             text-decoration: none;
             display: block;
@@ -157,7 +167,7 @@
             color: inherit;
         }
 
-        /* icon & emoji area */
+        /* Icon container for each card */
         .path-icon {
             font-size: 2.6rem;
             margin-bottom: 1rem;
@@ -169,6 +179,7 @@
             color: #1C7EB5;
         }
 
+        /* Card title styling */
         .path-title {
             font-size: 1.7rem;
             font-weight: 700;
@@ -177,6 +188,7 @@
             color: #0B2B3F;
         }
 
+        /* Card description text */
         .path-desc {
             color: #2c556e;
             line-height: 1.5;
@@ -184,6 +196,7 @@
             margin-bottom: 1.2rem;
         }
 
+        /* Arrow indicator at bottom of card */
         .path-arrow {
             display: inline-flex;
             align-items: center;
@@ -194,12 +207,13 @@
             transition: gap 0.2s, border-color 0.2s;
         }
 
+        /* Arrow animation on card hover */
         .path-card:hover .path-arrow {
             gap: 0.7rem;
             border-bottom-color: #1C7EB5;
         }
 
-        /* divider */
+        /* Decorative divider line */
         .divider {
             width: 70px;
             height: 3px;
@@ -208,7 +222,7 @@
             margin: 0.7rem auto 0;
         }
 
-        /* footer note */
+        /* Information note at bottom of content area */
         .info-note {
             text-align: center;
             margin-top: 1rem;
@@ -221,6 +235,7 @@
             backdrop-filter: blur(2px);
         }
 
+        /* Footer section */
         footer {
             margin-top: 2rem;
             text-align: center;
@@ -229,13 +244,14 @@
             padding-top: 1.2rem;
         }
 
+        /* Footer text styling */
         .footer-text {
             font-size: 0.75rem;
             color: #4f7b9a;
             letter-spacing: 0.3px;
         }
 
-        /* responsive touch */
+        /* Responsive styles for tablets and smaller screens */
         @media (max-width: 750px) {
             body { padding: 1.5rem 1rem; }
             .hero h1 { font-size: 2.2rem; }
@@ -245,6 +261,7 @@
             .purpose-text { font-size: 0.98rem; }
         }
 
+        /* Responsive styles for mobile devices */
         @media (max-width: 550px) {
             .path-title { font-size: 1.45rem; }
             .card-link { padding: 1.3rem 1rem; }
@@ -254,13 +271,14 @@
 </head>
 <body>
 <div class="hub-container">
+    <!-- Hero section with main title and tagline -->
     <div class="hero">
         <h1>SecureCodeHub</h1>
         <div class="tagline">build · defend · advance</div>
         <div class="divider"></div>
     </div>
 
-    <!-- NEW: SIMPLE PURPOSE SECTION - explains website mission with blue/white/black palette -->
+    <!-- Purpose section explaining website mission -->
     <div class="purpose-section">
         <div class="purpose-inner">
             <div class="purpose-title">
@@ -277,15 +295,16 @@
                 to identify, prevent, and mitigate threats — all in one clear, accessible hub.
             </div>
             <div class="purpose-highlight">
-                📘 Learn core topics · 🔍 Explore vulnerability library · 🧠 Test your knowledge with quizzes
+                📘 Learn core topics · 🔍 Explore vulnerability library · 🧠 Find out where to start using our chatbot
             </div>
         </div>
     </div>
 
+    <!-- Grid of three main navigation cards -->
     <div class="paths-grid">
-        <!-- MAIN LEARNING PATH CARD -->
+        <!-- Main Learning Path Card - links to topics page -->
         <div class="path-card">
-            <a href="/main" class="card-link" aria-label="Go to Main Learning Path – comprehensive security curriculum">
+            <a href="/topics" class="card-link" aria-label="Go to Main Learning Path – comprehensive security curriculum">
                 <div class="path-icon">📘</div>
                 <div class="path-title">Main Learning Path</div>
                 <div class="path-desc">Master essential security topics: threat modeling, cryptography, secure design, OWASP fundamentals & more.</div>
@@ -293,7 +312,7 @@
             </a>
         </div>
 
-        <!-- VULNERABILITY LIBRARY CARD -->
+        <!-- Vulnerability Library Card - links to vulnerabilities page -->
         <div class="path-card">
             <a href="/vuln" class="card-link" aria-label="Go to Vulnerability Library – detailed weakness database">
                 <div class="path-icon">🐞</div>
@@ -303,25 +322,26 @@
             </a>
         </div>
 
-        <!-- QUIZ LIBRARY CARD -->
+        <!-- AI Chatbot Card - links to AI assistant page -->
         <div class="path-card">
-            <a href="/quiz" class="card-link" aria-label="Go to Quiz Library – interactive knowledge checks">
+            <a href="/chat" class="card-link" aria-label="Go to AI Chatbot – personalized guidance">
                 <div class="path-icon">🧠</div>
-                <div class="path-title">Quiz Library</div>
-                <div class="path-desc">Challenge yourself with scenario-based quizzes, flashcards, and exam-style questions to reinforce security skills.</div>
-                <span class="path-arrow">explore quiz library →</span>
+                <div class="path-title">AI Help</div>
+                <div class="path-desc">Don't know where to start? No problem! you can start by using our ai chatbot to find out where to start and what you need to secure your website</div>
+                <span class="path-arrow">Chat with our chatbot →</span>
             </a>
         </div>
     </div>
 
-    <!-- subtle information note (additional blue/white elegance) -->
+    <!-- Information note at bottom of content -->
     <div style="text-align: center; margin-top: 0.5rem;">
         <div class="info-note">
-            💡 Start anywhere — each path adapts to your knowledge level. New content added weekly.
+            💡 Start anywhere — each path adapts to your knowledge level.
         </div>
     </div>
 </div>
 
+<!-- Footer section -->
 <footer>
     <p class="footer-text">🔐 SecureCodeHub — Empowering developers to build resilient systems | © 2025</p>
 </footer>

@@ -4,12 +4,14 @@
     <meta charset="UTF-8">
     <title>SecureCodeHub — Security Topics</title>
     <style>
+        /* Reset default browser margins and box sizing for consistent rendering */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
 
+        /* Body styling with gradient background matching SecureCodeHub theme */
         body {
             font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
             display: flex;
@@ -17,7 +19,7 @@
             background: linear-gradient(145deg, #f0f4f8 0%, #e6edf4 100%);
         }
 
-        /* SIDEBAR — deep blue/black theme */
+        /* Sidebar styling - deep blue/black theme */
         .sidebar {
             width: 280px;
             background: #0B2B3F;
@@ -27,6 +29,7 @@
             box-shadow: 2px 0 12px rgba(0, 0, 0, 0.08);
         }
 
+        /* Sidebar title with blue accent border */
         .sidebar h2 {
             font-size: 1.6rem;
             font-weight: 600;
@@ -37,6 +40,43 @@
             color: white;
         }
 
+        /* Home button styling - positioned at top of sidebar */
+        .home-button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px 16px;
+            margin-bottom: 24px;
+            background: #1a4b6e;
+            color: white;
+            text-decoration: none;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: all 0.2s ease;
+            border: none;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        /* Home button hover effect */
+        .home-button:hover {
+            background: #2c7cb6;
+            transform: translateX(4px);
+        }
+
+        /* Home button active/press effect */
+        .home-button:active {
+            transform: translateX(2px);
+        }
+
+        /* Home icon styling */
+        .home-icon {
+            font-size: 1.2rem;
+        }
+
+        /* Topic selection button styling */
         .topic-btn {
             width: 100%;
             padding: 12px 16px;
@@ -53,11 +93,13 @@
             transition: all 0.2s ease;
         }
 
+        /* Topic button hover effect */
         .topic-btn:hover {
             background: #2c7cb6;
             transform: translateX(4px);
         }
 
+        /* Active/selected topic button styling */
         .topic-btn.active {
             background: #1C7EB5;
             color: white;
@@ -65,7 +107,7 @@
             font-weight: 600;
         }
 
-        /* MAIN CONTENT — white card style */
+        /* Main content area - white card style */
         .content {
             flex: 1;
             padding: 40px 48px;
@@ -73,6 +115,7 @@
             overflow-y: auto;
         }
 
+        /* Topic title styling with blue left border */
         .title {
             font-size: 2rem;
             font-weight: 700;
@@ -83,16 +126,16 @@
             padding-left: 20px;
         }
 
-        /* Content text styling */
+        /* Main content text styling */
         .content-text {
-            font-size: 1rem;
+            font-size: 1.5rem;
             line-height: 1.7;
             color: #2c4a6e;
             margin-bottom: 28px;
             padding: 0 4px;
         }
 
-        /* Topic image styling — LARGER SIZE */
+        /* Image container styling - larger display area */
         .topic-image {
             margin: 20px 0 28px 0;
             text-align: center;
@@ -101,6 +144,7 @@
             border-radius: 16px;
         }
 
+        /* Image styling with responsive sizing */
         .topic-image img {
             width: 100%;
             min-width: 300px;
@@ -111,9 +155,9 @@
             border: 2px solid #e2edf7;
         }
 
-        /* Explanation section */
+        /* Explanation section styling */
         .explanation {
-            font-size: 1.05rem;
+            font-size: 1.5rem;
             line-height: 1.7;
             color: #1f3b4c;
             margin-bottom: 28px;
@@ -123,7 +167,7 @@
             border-left: 4px solid #1C7EB5;
         }
 
-        /* Vulnerabilities section */
+        /* Vulnerabilities section container */
         .vulnerabilities-section {
             margin-top: 20px;
             padding: 20px;
@@ -131,6 +175,7 @@
             border-radius: 16px;
         }
 
+        /* Vulnerabilities section title */
         .vulnerabilities-title {
             font-size: 1.25rem;
             font-weight: 700;
@@ -141,16 +186,19 @@
             gap: 8px;
         }
 
+        /* Warning icon before vulnerabilities title */
         .vulnerabilities-title:before {
             content: "⚠️";
             font-size: 1.3rem;
         }
 
+        /* List of vulnerabilities */
         .vulnerabilities-list {
             list-style: none;
             padding: 0;
         }
 
+        /* Individual vulnerability item styling */
         .vulnerability-item {
             padding: 12px 16px;
             margin-bottom: 10px;
@@ -162,12 +210,14 @@
             transition: all 0.2s ease;
         }
 
+        /* Vulnerability item hover effect */
         .vulnerability-item:hover {
             border-color: #1C7EB5;
             transform: translateX(4px);
             background: #ffffff;
         }
 
+        /* Message shown when no vulnerabilities are listed */
         .no-vulnerabilities {
             color: #7f8c9a;
             font-style: italic;
@@ -177,6 +227,7 @@
             border-radius: 12px;
         }
 
+        /* Empty state styling */
         .empty {
             color: #7f8c9a;
             text-align: center;
@@ -184,7 +235,7 @@
             font-size: 1rem;
         }
 
-        /* scrollbar styling */
+        /* Custom scrollbar for sidebar */
         .sidebar::-webkit-scrollbar {
             width: 5px;
         }
@@ -195,6 +246,8 @@
             background: #3b9bd5;
             border-radius: 10px;
         }
+
+        /* Custom scrollbar for content area */
         .content::-webkit-scrollbar {
             width: 6px;
         }
@@ -206,7 +259,7 @@
             border-radius: 10px;
         }
 
-        /* responsive adjustments */
+        /* Responsive adjustments for tablets */
         @media (max-width: 768px) {
             .content {
                 padding: 24px 20px;
@@ -227,6 +280,7 @@
             }
         }
 
+        /* Larger image sizing for desktop screens */
         @media (min-width: 1200px) {
             .topic-image img {
                 max-width: 80%;
@@ -236,10 +290,17 @@
     </style>
 </head>
 <body>
+    <!-- Sidebar with home button and topic navigation -->
     <div class="sidebar">
+        <a href="/" class="home-button">
+            <span class="home-icon">🏠</span>
+            <span>← Back to Home</span>
+        </a>
         <h2>Security Topics</h2>
         <div id="topicList"></div>
     </div>
+
+    <!-- Main content area where selected topic details are displayed -->
     <div class="content">
         <div id="main">
             <div class="title">Select a topic</div>
@@ -248,14 +309,15 @@
     </div>
 
     <script>
-        // Get the data from server - handle both 'topics' and 'topic' variable names
+        // Array to store topics fetched from the server
         let topics = [];
 
-        // Try to get topics from locals.topics or locals.topic
+        // Attempt to retrieve topics data injected from the server (EJS template)
+        // Handles both array and single object formats for flexibility
         <% if (typeof locals.topics !== 'undefined') { %>
             topics = <%- JSON.stringify(locals.topics) %>;
         <% } else if (typeof locals.topic !== 'undefined') { %>
-            // If it's a single object, wrap it in an array
+            // If a single topic object is provided, wrap it in an array
             const topicData = <%- JSON.stringify(locals.topic) %>;
             if (Array.isArray(topicData)) {
                 topics = topicData;
@@ -266,10 +328,14 @@
             }
         <% } %>
 
-        // Debug: log to browser console
+        // Debug log to verify topics data in browser console
         console.log('Topics received:', topics);
 
-        // Helper to escape HTML
+        /**
+         * Escapes HTML special characters to prevent XSS attacks
+         * @param {string} str - The string to escape
+         * @returns {string} Escaped string safe for HTML insertion
+         */
         function escapeHtml(str) {
             if (!str) return '';
             return String(str).replace(/[&<>]/g, function(m) {
@@ -280,7 +346,11 @@
             });
         }
 
-        // Helper to render vulnerabilities array
+        /**
+         * Renders the vulnerabilities array as HTML list items
+         * @param {Array} vulnerabilities - Array of vulnerability strings
+         * @returns {string} HTML markup for vulnerabilities section
+         */
         function renderVulnerabilities(vulnerabilities) {
             if (!vulnerabilities || !Array.isArray(vulnerabilities) || vulnerabilities.length === 0) {
                 return '<div class="no-vulnerabilities">No specific vulnerabilities listed for this topic yet.</div>';
@@ -294,7 +364,11 @@
             return html;
         }
 
-        // Display a topic in order: content, image, explanation, vulnerabilities
+        /**
+         * Displays the selected topic in the main content area
+         * Order of display: Title → Content → Image → Explanation → Vulnerabilities
+         * @param {Object} topic - The topic object containing all fields
+         */
         function showTopic(topic) {
             if (!topic) {
                 console.warn('showTopic called with no topic');
@@ -302,17 +376,18 @@
             }
             console.log('Showing topic:', topic);
 
+            // Start with the topic title
             let html = `<div class="title">${escapeHtml(topic.title)}</div>`;
 
-            // 1. CONTENT section (original content/description)
+            // 1. CONTENT section (main description of the topic)
             if (topic.content && topic.content.trim() !== '') {
                 html += `<div class="content-text">${escapeHtml(topic.content).replace(/\n/g, '<br>')}</div>`;
             } else if (topic.description && topic.description.trim() !== '') {
-                // Fallback to description if content doesn't exist
+                // Fallback to description field if content is not available
                 html += `<div class="content-text">${escapeHtml(topic.description).replace(/\n/g, '<br>')}</div>`;
             }
 
-            // 2. IMAGE section (larger display)
+            // 2. IMAGE section - displays visual representation of the topic
             if (topic.image && topic.image.trim() !== '') {
                 html += `
                     <div class="topic-image">
@@ -321,12 +396,12 @@
                 `;
             }
 
-            // 3. EXPLANATION section
+            // 3. EXPLANATION section - detailed explanatory text
             if (topic.explanation && topic.explanation.trim() !== '') {
                 html += `<div class="explanation">📖 ${escapeHtml(topic.explanation).replace(/\n/g, '<br>')}</div>`;
             }
 
-            // 4. VULNERABILITIES section
+            // 4. VULNERABILITIES section - list of associated vulnerabilities
             html += `
                 <div class="vulnerabilities-section">
                     <div class="vulnerabilities-title">Associated Vulnerabilities</div>
@@ -334,9 +409,10 @@
                 </div>
             `;
 
+            // Insert the generated HTML into the main content area
             document.getElementById('main').innerHTML = html;
 
-            // Update active button
+            // Update the active state of sidebar buttons
             document.querySelectorAll('.topic-btn').forEach(btn => {
                 btn.classList.remove('active');
                 if (parseInt(btn.dataset.id) === topic.id) {
@@ -345,37 +421,45 @@
             });
         }
 
-        // Build sidebar buttons
+        /**
+         * Builds the sidebar with clickable topic buttons
+         * Creates a button for each topic in the topics array
+         */
         function buildSidebar() {
             const container = document.getElementById('topicList');
+
+            // Handle case when no topics are available
             if (!topics || topics.length === 0) {
                 container.innerHTML = '<div style="color:#95a5a6;">No topics found</div>';
                 return;
             }
 
-            // Clear container
+            // Clear any existing content
             container.innerHTML = '';
 
-            // Create buttons
+            // Create a button for each topic
             for (let i = 0; i < topics.length; i++) {
                 const t = topics[i];
                 const btn = document.createElement('button');
                 btn.className = 'topic-btn';
                 btn.textContent = t.title || 'Untitled';
                 btn.setAttribute('data-id', t.id);
+
+                // Add click event listener that displays the selected topic
                 btn.addEventListener('click', (function(topic) {
                     return function() { showTopic(topic); };
                 })(t));
+
                 container.appendChild(btn);
             }
 
-            // Show first topic by default
+            // Automatically display the first topic when page loads
             if (topics.length > 0) {
                 showTopic(topics[0]);
             }
         }
 
-        // Run when page loads
+        // Initialize the page by building the sidebar
         buildSidebar();
     </script>
 </body>
