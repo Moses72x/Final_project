@@ -3,6 +3,12 @@ import express from "express"; // Web framework for Node.js
 import cors from "cors"; // Middleware to enable CORS (Cross-Origin Resource Sharing)
 import { supabase } from "./config/supabase.js"; // Supabase client for database operations
 import dotenv from "dotenv"; // Load environment variables from .env file
+import path from "path"; // For handling file paths
+import { fileURLToPath } from "url"; // For ES module compatibility
+
+// Get __dirname equivalent in ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Load environment variables (API keys, ports, etc.)
 dotenv.config();
@@ -14,33 +20,61 @@ const port = process.env.PORT || 3000;
 
 // Middleware setup
 app.use(express.json()); // Parse incoming JSON request bodies
-app.use(cors()); // Allow cross-origin requests from frontend
-app.set("view engine", "ejs"); // Set EJS as the templating engine for rendering HTML
+app.use(express.urlencoded({ extended: true })); // Parse URL-encoded bodies
+
+// Configure CORS for Render deployment
+app.use(
+  cors({
+    origin:
+      process.env.NODE_ENV === "production"
+        ? process.env.RENDER_URL || "https://your-app.onrender.com" // Replace with your actual Render URL
+        : "http://localhost:3000",
+    credentials: true,
+  }),
+);
+
+// Set view engine and views directory
+app.set("view engine", "ejs");
+app.set("views", path.join(__dirname, "views"));
+
+// Serve static files from public directory (if you have one)
+app.use(express.static(path.join(__dirname, "public")));
 
 // Route: Home page
-// Renders the main landing page (index.ejs)
 app.get("/", async (req, res) => {
-  res.render("index");
-  console.log(data); // Note: 'data' is not defined here - appears to be a debugging oversight
+  try {
+    res.render("index");
+  } catch (error) {
+    console.error("Error rendering index:", error);
+    res.status(500).send("Error loading home page");
+  }
 });
 
 // Route: Security Topics page
-// Fetches all topics from the 'topic' table in Supabase and passes them to the topics.ejs template
 app.get("/topics", async (req, res) => {
-  const { data, error } = await supabase.from("topic").select("*");
-  res.render("topics", { topics: data });
+  try {
+    const { data, error } = await supabase.from("topic").select("*");
+    if (error) throw error;
+    res.render("topics", { topics: data || [] });
+  } catch (error) {
+    console.error("Error fetching topics:", error);
+    res.status(500).send("Error loading topics page");
+  }
 });
 
 // Route: Vulnerabilities page
-// Fetches all vulnerabilities from the 'vulnerability' table and passes them to the vuln.ejs template
 app.get("/vuln", async (req, res) => {
-  const { data, error } = await supabase.from("vulnerability").select("*");
-  res.render("vuln", { vulnerabilities: data });
+  try {
+    const { data, error } = await supabase.from("vulnerability").select("*");
+    if (error) throw error;
+    res.render("vuln", { vulnerabilities: data || [] });
+  } catch (error) {
+    console.error("Error fetching vulnerabilities:", error);
+    res.status(500).send("Error loading vulnerabilities page");
+  }
 });
 
 // Route: AI Chat page
-// Fetches all topic titles to provide context to the AI assistant,
-// then renders the chat interface (ai.ejs) with the topic list
 app.get("/chat", async (req, res) => {
   try {
     // Fetch all topic titles from the database to give the AI awareness of available content
@@ -68,59 +102,123 @@ app.get("/chat", async (req, res) => {
 });
 
 // API Endpoint: AI Chat Handler (POST)
-// Receives user messages and conversation history, sends to OpenRouter API (Gemini model),
-// and returns AI-generated responses that guide users to relevant security topics
 app.post("/api/chat", async (req, res) => {
-  // Extract user message and conversation history from request body
   const { message, history = [] } = req.body;
 
-  // Fetch all topic titles to provide context to the AI
-  const { data, error } = await supabase.from("topic").select("title");
-  let titlesList = [];
-  titlesList = data.map((item) => item.title).join(", ");
+  // Validate request
+  if (!message || message.trim() === "") {
+    return res.status(400).json({ error: "Message is required" });
+  }
+
+  console.log(`[Chat API] Received message: "${message.substring(0, 50)}..."`);
 
   try {
+    // Fetch all topic titles to provide context to the AI
+    const { data, error } = await supabase.from("topic").select("title");
+
+    if (error) {
+      console.error("Supabase error in chat API:", error);
+    }
+
+    let titlesList = [];
+    if (data && data.length > 0) {
+      titlesList = data.map((item) => item.title).join(", ");
+      console.log(`[Chat API] Loaded ${data.length} topics for context`);
+    } else {
+      console.log("[Chat API] No topics found in database");
+    }
+
+    // Check if API key exists
+    if (!process.env.API_KEY) {
+      console.error("[Chat API] API_KEY is not set in environment variables");
+      return res
+        .status(500)
+        .json({ error: "API configuration error on server" });
+    }
+
     // Call OpenRouter API to get AI response
+    console.log("[Chat API] Calling OpenRouter API...");
     const response = await fetch(
       "https://openrouter.ai/api/v1/chat/completions",
       {
         method: "POST",
         headers: {
-          Authorization: `Bearer ${process.env.API_KEY}`, // API key from environment variables
+          Authorization: `Bearer ${process.env.API_KEY}`,
           "Content-Type": "application/json",
+          // Optional but recommended for OpenRouter
+          "HTTP-Referer":
+            process.env.RENDER_URL || "https://securecodehub.onrender.com",
+          "X-Title": "SecureCodeHub",
         },
         body: JSON.stringify({
-          model: "openrouter/free", // Use free tier model
+          model: "openrouter/free",
           messages: [
             {
               role: "system",
-              // System prompt defines AI's role: guide users to relevant security topics on SecureCodeHub
-              content: `You are an assistant on a website called SecureCodeHub, which functions as a guide book that helps web developers with no background in security learn what they need to implament security measures to there own websits. and your main job is to guide them to what security topics on this website they need to secure there websites. and this is the database of topics ${titlesList} (assume that its complete for now).`,
+              content: `You are an assistant on a website called SecureCodeHub, which functions as a guide book that helps web developers with no background in security learn what they need to implement security measures to their own websites. Your main job is to guide them to what security topics on this website they need to secure their websites. Here is the database of topics available: ${titlesList} (assume that it's complete for now). Keep responses concise and helpful.`,
             },
-            ...history, // Include previous conversation messages for context
-            { role: "user", content: message }, // Current user message
+            ...history,
+            { role: "user", content: message },
           ],
+          // Add timeout and max tokens to prevent long responses
+          max_tokens: 500,
+          temperature: 0.7,
         }),
       },
     );
 
-    const data = await response.json();
+    console.log(`[Chat API] OpenRouter response status: ${response.status}`);
 
-    // Handle API errors
     if (!response.ok) {
-      throw new Error(data.error?.message || "API Error");
+      const errorData = await response.json();
+      console.error("[Chat API] OpenRouter API error:", errorData);
+      throw new Error(
+        errorData.error?.message || `API returned status ${response.status}`,
+      );
     }
 
-    // Extract AI reply from response
-    const reply = data.choices[0].message.content;
-    res.json({ reply }); // Send reply back to frontend
+    const responseData = await response.json();
+
+    if (
+      !responseData.choices ||
+      !responseData.choices[0] ||
+      !responseData.choices[0].message
+    ) {
+      console.error("[Chat API] Invalid response structure:", responseData);
+      throw new Error("Invalid response from AI API");
+    }
+
+    const reply = responseData.choices[0].message.content;
+    console.log(`[Chat API] Successfully got reply (${reply.length} chars)`);
+
+    res.json({ reply });
   } catch (error) {
-    console.error("Error:", error);
-    res.status(500).json({ error: "Failed to get response from AI" });
+    console.error("[Chat API] Error:", error.message);
+    // Send more detailed error for debugging (but not too detailed for production)
+    res.status(500).json({
+      error: "Failed to get response from AI",
+      details:
+        process.env.NODE_ENV === "development" ? error.message : undefined,
+    });
   }
 });
 
-// Start the server and listen for incoming requests
+// Health check endpoint for Render
+app.get("/health", (req, res) => {
+  res.json({
+    status: "ok",
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV || "development",
+    apiKeyConfigured: !!process.env.API_KEY,
+  });
+});
+
+// Start the server
 app.listen(port, () => {
-  console.log(`Server is running on http://localhost:${port}`);
+  console.log(`✅ Server is running on port ${port}`);
+  console.log(`📍 Local: http://localhost:${port}`);
+  if (process.env.RENDER_URL) {
+    console.log(`📍 Render: ${process.env.RENDER_URL}`);
+  }
+  console.log(`🔑 API Key configured: ${!!process.env.API_KEY}`);
 });
