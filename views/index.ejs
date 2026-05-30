@@ -23,6 +23,12 @@
             justify-content: center;
             padding: 2rem 1.5rem;
         }
+        img {
+            width: 60%;
+            min-width: 300px;
+            max-height: 500px;
+            height: auto;
+        }
 
         /* Main container to center and constrain content width */
         .hub-container {
@@ -35,6 +41,9 @@
         .hero {
             text-align: center;
             margin-bottom: 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
         /* Main title with gradient text effect */
@@ -273,7 +282,7 @@
 <div class="hub-container">
     <!-- Hero section with main title and tagline -->
     <div class="hero">
-        <h1>SecureCodeHub</h1>
+        <img src="/images/logo3.png" alt="SecureCodeHub logo">
         <div class="tagline">build · defend · advance</div>
         <div class="divider"></div>
     </div>

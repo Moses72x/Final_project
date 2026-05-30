@@ -97,6 +97,75 @@
             font-size: 1.4rem;
         }
 
+        /* Search bar styling */
+        .search-container {
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1rem;
+            opacity: 0.7;
+            pointer-events: none;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 10px 12px 10px 36px;
+            background: #1a4b6e;
+            border: 1px solid #2c7cb6;
+            border-radius: 12px;
+            color: white;
+            font-size: 0.9rem;
+            font-family: inherit;
+            outline: none;
+            transition: all 0.2s ease;
+        }
+
+        .search-input::placeholder {
+            color: #a0c4e0;
+            opacity: 0.7;
+        }
+
+        .search-input:focus {
+            border-color: #1C7EB5;
+            background: #2c7cb6;
+            box-shadow: 0 0 0 2px rgba(28, 126, 181, 0.3);
+        }
+
+        .clear-search {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            font-size: 1rem;
+            padding: 0;
+            display: none;
+            opacity: 0.7;
+            transition: opacity 0.2s;
+        }
+
+        .clear-search:hover {
+            opacity: 1;
+        }
+
+        /* No results message */
+        .no-results {
+            text-align: center;
+            color: #a0c4e0;
+            padding: 20px;
+            font-size: 0.9rem;
+            font-style: italic;
+        }
+
         /* Vulnerability selection button styling */
         .topic-btn {
             width: 100%;
@@ -356,6 +425,14 @@
                 <span>← Back to Home</span>
             </a>
             <h2>Vulnerability Library</h2>
+
+            <!-- Search bar -->
+            <div class="search-container">
+                <span class="search-icon">🔍</span>
+                <input type="text" id="searchInput" class="search-input" placeholder="Search vulnerabilities...">
+                <button id="clearSearch" class="clear-search">✕</button>
+            </div>
+
             <div id="topicList"></div>
         </div>
 
@@ -465,10 +542,10 @@
         }
 
         /**
-         * Builds the sidebar with clickable vulnerability buttons
-         * Creates a button for each vulnerability in the vulnerabilities array
+         * Builds the sidebar with clickable vulnerability buttons based on search filter
+         * @param {string} searchTerm - Optional term to filter vulnerabilities
          */
-        function buildSidebar() {
+        function buildSidebar(searchTerm = '') {
             const container = document.getElementById('topicList');
 
             // Handle case when no vulnerabilities are available
@@ -477,12 +554,27 @@
                 return;
             }
 
+            // Filter vulnerabilities based on search term
+            let filteredVulnerabilities = vulnerabilities;
+            if (searchTerm && searchTerm.trim() !== '') {
+                const term = searchTerm.toLowerCase().trim();
+                filteredVulnerabilities = vulnerabilities.filter(vuln =>
+                    vuln.name && vuln.name.toLowerCase().includes(term)
+                );
+            }
+
+            // Handle no search results
+            if (filteredVulnerabilities.length === 0) {
+                container.innerHTML = '<div class="no-results">No matching vulnerabilities found</div>';
+                return;
+            }
+
             // Clear any existing content
             container.innerHTML = '';
 
-            // Create a button for each vulnerability
-            for (let i = 0; i < vulnerabilities.length; i++) {
-                const vuln = vulnerabilities[i];
+            // Create a button for each filtered vulnerability
+            for (let i = 0; i < filteredVulnerabilities.length; i++) {
+                const vuln = filteredVulnerabilities[i];
                 const btn = document.createElement('button');
                 btn.className = 'topic-btn';
                 btn.textContent = vuln.name || 'Untitled';
@@ -496,9 +588,9 @@
                 container.appendChild(btn);
             }
 
-            // Automatically display the first vulnerability when page loads
-            if (vulnerabilities.length > 0) {
-                showVulnerability(vulnerabilities[0]);
+            // Only auto-select first vulnerability if no search term is active or if search has results
+            if (filteredVulnerabilities.length > 0 && !searchTerm) {
+                showVulnerability(filteredVulnerabilities[0]);
             }
         }
 
@@ -507,6 +599,31 @@
 
         // Initialize the page by building the sidebar
         buildSidebar();
+
+        // Set up search functionality
+        const searchInput = document.getElementById('searchInput');
+        const clearButton = document.getElementById('clearSearch');
+
+        // Handle search input
+        searchInput.addEventListener('input', function(e) {
+            const searchTerm = e.target.value;
+            buildSidebar(searchTerm);
+
+            // Show/hide clear button
+            if (searchTerm) {
+                clearButton.style.display = 'block';
+            } else {
+                clearButton.style.display = 'none';
+            }
+        });
+
+        // Handle clear button click
+        clearButton.addEventListener('click', function() {
+            searchInput.value = '';
+            buildSidebar('');
+            clearButton.style.display = 'none';
+            searchInput.focus();
+        });
     </script>
 </body>
 </html>

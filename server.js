@@ -36,6 +36,7 @@ app.use(
 // Set view engine and views directory
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
+app.use(express.static(path.join(__dirname, "public")));
 
 // Serve static files from public directory (if you have one)
 app.use(express.static(path.join(__dirname, "public")));
