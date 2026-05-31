@@ -80,10 +80,20 @@ app.get("/chat", async (req, res) => {
   try {
     // Fetch all topic titles from the database to give the AI awareness of available content
     const { data, error } = await supabase.from("topic").select("title");
+
+    // Fetch all preset questions from the ai_question table
+    const { data: aiQuestions, error: aiQuestionsError } = await supabase
+      .from("ai_question")
+      .select("*");
+
     let titlesList = [];
 
     if (error) {
-      console.error("Supabase error:", error);
+      console.error("Supabase error fetching topics:", error);
+    }
+
+    if (aiQuestionsError) {
+      console.error("Supabase error fetching AI questions:", aiQuestionsError);
     }
 
     // Convert array of topics into a comma-separated string for the AI prompt
@@ -91,9 +101,17 @@ app.get("/chat", async (req, res) => {
       titlesList = data.map((item) => item.title).join(", ");
     }
 
-    // Render the EJS template and pass the topic list for context
+    // Log how many questions were loaded for debugging
+    if (aiQuestions && aiQuestions.length > 0) {
+      console.log(`[Chat Page] Loaded ${aiQuestions.length} preset questions`);
+    } else {
+      console.log("[Chat Page] No preset questions found in database");
+    }
+
+    // Render the EJS template and pass the topic list and AI questions for context
     res.render("ai", {
       titlesList: titlesList,
+      aiQuestions: aiQuestions || [], // Pass the preset questions to the template
       pageTitle: "AI Security Assistant - SecureCodeHub",
     });
   } catch (error) {
@@ -156,7 +174,7 @@ app.post("/api/chat", async (req, res) => {
           messages: [
             {
               role: "system",
-              content: `You are an assistant on a website called SecureCodeHub, which functions as a guide book that helps web developers with no background in security learn what they need to implement security measures to their own websites. Your main job is to guide them to what security topics on this website they need to secure their websites. Here is the database of topics available: ${titlesList} (assume that it's complete for now). Keep responses concise and helpful.`,
+              content: `You are an assistant on a website called SecureCodeHub, which functions as a guide book that helps web developers with no background in security learn what they need to implement security measures to their own websites. Your main job is to guide them to what security topics on this website they need to secure their websites. Here is the database of topics available: ${titlesList} (assume that it's complete for now). Keep responses concise, helpful, short, and simple.`,
             },
             ...history,
             { role: "user", content: message },

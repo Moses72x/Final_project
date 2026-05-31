@@ -219,12 +219,16 @@
             }
 
             /* Input area container */
-            .chat-input-container {
-                padding: 20px 24px;
+            .input-section {
+                background: white;
                 border-top: 1px solid #e2edf7;
+                padding: 20px 24px;
+            }
+
+            .chat-input-container {
                 display: flex;
                 gap: 12px;
-                background: white;
+                margin-bottom: 16px;
             }
 
             /* Text input field */
@@ -280,6 +284,56 @@
                 transform: none;
             }
 
+            /* Preset questions section */
+            .preset-questions {
+                border-top: 1px dashed #dce5ec;
+                padding-top: 16px;
+            }
+
+            .preset-title {
+                font-size: 0.8rem;
+                color: #5a7d9e;
+                margin-bottom: 10px;
+                display: flex;
+                align-items: center;
+                gap: 6px;
+            }
+
+            .preset-title:before {
+                content: "💡";
+                font-size: 0.9rem;
+            }
+
+            .preset-buttons {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 8px;
+            }
+
+            .preset-btn {
+                background: #eef2f8;
+                border: 1px solid #dce5ec;
+                color: #1f3b4c;
+                padding: 8px 16px;
+                border-radius: 20px;
+                font-size: 0.8rem;
+                font-family: inherit;
+                cursor: pointer;
+                transition: all 0.2s ease;
+                text-align: left;
+            }
+
+            .preset-btn:hover {
+                background: #1C7EB5;
+                color: white;
+                border-color: #1C7EB5;
+                transform: translateY(-2px);
+            }
+
+            .preset-btn:active {
+                transform: translateY(0);
+            }
+
             /* Custom scrollbar for messages area */
             .chat-messages::-webkit-scrollbar {
                 width: 6px;
@@ -322,11 +376,15 @@
                 .chat-messages {
                     padding: 16px;
                 }
-                .chat-input-container {
+                .input-section {
                     padding: 16px 20px;
                 }
                 .send-button {
                     padding: 12px 20px;
+                }
+                .preset-btn {
+                    padding: 6px 12px;
+                    font-size: 0.7rem;
                 }
             }
         </style>
@@ -354,15 +412,33 @@
                 </div>
             </div>
 
-            <!-- Input area for user to type messages -->
-            <div class="chat-input-container">
-                <input
-                    type="text"
-                    id="messageInput"
-                    class="chat-input"
-                    placeholder="Ask about XSS, SQL injection, security best practices..."
-                />
-                <button id="sendButton" class="send-button">Send</button>
+            <!-- Input area with preset questions -->
+            <div class="input-section">
+                <div class="chat-input-container">
+                    <input
+                        type="text"
+                        id="messageInput"
+                        class="chat-input"
+                        placeholder="Ask about XSS, SQL injection, security best practices..."
+                    />
+                    <button id="sendButton" class="send-button">Send</button>
+                </div>
+
+                <!-- Preset Questions Section -->
+                <% if (typeof aiQuestions !== 'undefined' && aiQuestions && aiQuestions.length > 0) { %>
+                <div class="preset-questions">
+                    <div class="preset-title">Not sure where to start? Try one of these:</div>
+                    <div class="preset-buttons" id="presetButtons">
+                        <% aiQuestions.forEach(function(question) { %>
+                            <% if (question.question && question.question.trim()) { %>
+                                <button class="preset-btn" data-question="<%- question.question.replace(/"/g, '&quot;') %>">
+                                    💬 <%- question.question %>
+                                </button>
+                            <% } %>
+                        <% }); %>
+                    </div>
+                </div>
+                <% } %>
             </div>
         </div>
 
@@ -434,19 +510,26 @@
 
             /**
              * Sends user message to backend API and displays AI response
+             * @param {string} message - The message to send (optional, uses input value if not provided)
              */
-            async function sendMessage() {
-                const message = messageInput.value.trim();
-                if (!message) return;
+            async function sendMessage(message) {
+                // If message is provided as argument, use it; otherwise get from input
+                const messageText = message || messageInput.value.trim();
+                if (!messageText) return;
 
-                // Clear input and disable button during request
-                messageInput.value = "";
+                // If message came from preset button, clear input field
+                if (message) {
+                    messageInput.value = "";
+                } else {
+                    // Clear input and disable button during request
+                    messageInput.value = "";
+                }
                 sendButton.disabled = true;
 
                 // Display user message in chat
-                addMessage("user", message);
+                addMessage("user", messageText);
                 // Store in conversation history
-                conversationHistory.push({ role: "user", content: message });
+                conversationHistory.push({ role: "user", content: messageText });
 
                 // Show that bot is "typing"
                 showTypingIndicator();
@@ -461,7 +544,7 @@
                                 "Content-Type": "application/json",
                             },
                             body: JSON.stringify({
-                                message: message,
+                                message: messageText,
                                 history: conversationHistory.slice(0, -1), // Send previous messages (excluding current)
                             }),
                         },
@@ -501,13 +584,24 @@
             }
 
             // Event listener for send button click
-            sendButton.addEventListener("click", sendMessage);
+            sendButton.addEventListener("click", () => sendMessage());
 
             // Event listener for Enter key press
             messageInput.addEventListener("keypress", (e) => {
                 if (e.key === "Enter" && !sendButton.disabled) {
                     sendMessage();
                 }
+            });
+
+            // Event listeners for preset question buttons
+            const presetButtons = document.querySelectorAll(".preset-btn");
+            presetButtons.forEach(button => {
+                button.addEventListener("click", () => {
+                    const question = button.getAttribute("data-question");
+                    if (question) {
+                        sendMessage(question);
+                    }
+                });
             });
 
             // Auto-focus input field when page loads
