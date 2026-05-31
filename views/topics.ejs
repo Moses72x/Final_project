@@ -145,11 +145,30 @@
             font-style: italic;
         }
 
+        /* Category section styling */
+        .category-section {
+            margin-bottom: 20px;
+        }
+
+        .category-title {
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #8ab3cf;
+            margin: 15px 0 8px 0;
+            padding-left: 8px;
+        }
+
+        .category-title:first-of-type {
+            margin-top: 0;
+        }
+
         /* Topic selection button styling */
         .topic-btn {
             width: 100%;
             padding: 12px 16px;
-            margin-bottom: 10px;
+            margin-bottom: 6px;
             background: #1a4b6e;
             color: #f0f7fc;
             border: none;
@@ -160,6 +179,7 @@
             font-weight: 500;
             font-family: inherit;
             transition: all 0.2s ease;
+            position: relative;
         }
 
         /* Topic button hover effect */
@@ -174,6 +194,19 @@
             color: white;
             border-left: 3px solid white;
             font-weight: 600;
+        }
+
+        /* Type badge inside topic button - dynamically colored based on type */
+        .topic-type-badge {
+            display: inline-block;
+            font-size: 0.65rem;
+            padding: 2px 6px;
+            border-radius: 8px;
+            margin-left: 8px;
+            font-weight: 500;
+            vertical-align: middle;
+            background: #5a6e7a;
+            color: white;
         }
 
         /* Main content area - white card style */
@@ -286,16 +319,6 @@
             background: #ffffff;
         }
 
-        /* Message shown when no vulnerabilities are listed */
-        .no-vulnerabilities {
-            color: #7f8c9a;
-            font-style: italic;
-            padding: 16px;
-            text-align: center;
-            background: white;
-            border-radius: 12px;
-        }
-
         /* Empty state styling */
         .empty {
             color: #7f8c9a;
@@ -346,6 +369,10 @@
             }
             .topic-image {
                 padding: 12px;
+            }
+            .topic-type-badge {
+                font-size: 0.55rem;
+                padding: 2px 4px;
             }
         }
 
@@ -424,15 +451,41 @@
         }
 
         /**
+         * Generates a consistent color for a given type string
+         * @param {string} type - The topic type
+         * @returns {string} HSL color value
+         */
+        function getColorForType(type) {
+            if (!type) return '#5a6e7a';
+
+            // Generate a hash from the type string
+            let hash = 0;
+            for (let i = 0; i < type.length; i++) {
+                hash = ((hash << 5) - hash) + type.charCodeAt(i);
+                hash = hash & hash; // Convert to 32-bit integer
+            }
+
+            // Use the hash to generate a hue between 0 and 360
+            // Use pastel/saturated range (30-60% saturation, 50-70% lightness for good contrast on dark background)
+            const hue = Math.abs(hash % 360);
+            return `hsl(${hue}, 55%, 45%)`;
+        }
+
+        /**
+         * Checks if vulnerabilities exist and are non-empty
+         * @param {Array} vulnerabilities - Array of vulnerability strings
+         * @returns {boolean} True if vulnerabilities exist and have content
+         */
+        function hasVulnerabilities(vulnerabilities) {
+            return vulnerabilities && Array.isArray(vulnerabilities) && vulnerabilities.length > 0;
+        }
+
+        /**
          * Renders the vulnerabilities array as HTML list items
          * @param {Array} vulnerabilities - Array of vulnerability strings
          * @returns {string} HTML markup for vulnerabilities section
          */
         function renderVulnerabilities(vulnerabilities) {
-            if (!vulnerabilities || !Array.isArray(vulnerabilities) || vulnerabilities.length === 0) {
-                return '<div class="no-vulnerabilities">No specific vulnerabilities listed for this topic yet.</div>';
-            }
-
             let html = '<ul class="vulnerabilities-list">';
             vulnerabilities.forEach(vuln => {
                 html += `<li class="vulnerability-item">⚠️ ${escapeHtml(vuln)}</li>`;
@@ -443,7 +496,7 @@
 
         /**
          * Displays the selected topic in the main content area
-         * Order of display: Title → Content → Image → Explanation → Vulnerabilities
+         * Order of display: Title → Content → Image → Explanation → Vulnerabilities (if any)
          * @param {Object} topic - The topic object containing all fields
          */
         function showTopic(topic) {
@@ -478,13 +531,15 @@
                 html += `<div class="explanation">📖 ${escapeHtml(topic.explanation).replace(/\n/g, '<br>')}</div>`;
             }
 
-            // 4. VULNERABILITIES section - list of associated vulnerabilities
-            html += `
-                <div class="vulnerabilities-section">
-                    <div class="vulnerabilities-title">Associated Vulnerabilities</div>
-                    ${renderVulnerabilities(topic.vulnerabilities)}
-                </div>
-            `;
+            // 4. VULNERABILITIES section - ONLY show if vulnerabilities exist
+            if (hasVulnerabilities(topic.vulnerabilities)) {
+                html += `
+                    <div class="vulnerabilities-section">
+                        <div class="vulnerabilities-title">Associated Vulnerabilities</div>
+                        ${renderVulnerabilities(topic.vulnerabilities)}
+                    </div>
+                `;
+            }
 
             // Insert the generated HTML into the main content area
             document.getElementById('main').innerHTML = html;
@@ -499,7 +554,41 @@
         }
 
         /**
-         * Builds the sidebar with clickable topic buttons based on search filter
+         * Creates a button element for a topic
+         * @param {Object} topic - The topic object
+         * @returns {HTMLElement} Button element
+         */
+        function createTopicButton(topic) {
+            const btn = document.createElement('button');
+            btn.className = 'topic-btn';
+
+            // Add title text
+            const titleSpan = document.createElement('span');
+            titleSpan.textContent = topic.title || 'Untitled';
+            btn.appendChild(titleSpan);
+
+            // Add type badge if type exists
+            if (topic.type) {
+                const badge = document.createElement('span');
+                badge.className = 'topic-type-badge';
+                badge.textContent = topic.type;
+                // Apply dynamic color based on the type string
+                badge.style.backgroundColor = getColorForType(topic.type);
+                btn.appendChild(badge);
+            }
+
+            btn.setAttribute('data-id', topic.id);
+
+            // Add click event listener that displays the selected topic
+            btn.addEventListener('click', (function(t) {
+                return function() { showTopic(t); };
+            })(topic));
+
+            return btn;
+        }
+
+        /**
+         * Builds the sidebar with clickable topic buttons grouped by type based on search filter
          * @param {string} searchTerm - Optional term to filter topics
          */
         function buildSidebar(searchTerm = '') {
@@ -529,25 +618,65 @@
             // Clear any existing content
             container.innerHTML = '';
 
-            // Create a button for each filtered topic
-            for (let i = 0; i < filteredTopics.length; i++) {
-                const t = filteredTopics[i];
-                const btn = document.createElement('button');
-                btn.className = 'topic-btn';
-                btn.textContent = t.title || 'Untitled';
-                btn.setAttribute('data-id', t.id);
-
-                // Add click event listener that displays the selected topic
-                btn.addEventListener('click', (function(topic) {
-                    return function() { showTopic(topic); };
-                })(t));
-
-                container.appendChild(btn);
+            // If search is active, show flat list without categories
+            if (searchTerm && searchTerm.trim() !== '') {
+                for (let i = 0; i < filteredTopics.length; i++) {
+                    const t = filteredTopics[i];
+                    const btn = createTopicButton(t);
+                    container.appendChild(btn);
+                }
+                if (filteredTopics.length > 0) {
+                    showTopic(filteredTopics[0]);
+                }
+                return;
             }
 
-            // Only auto-select first topic if no search term is active or if search has results
-            if (filteredTopics.length > 0 && !searchTerm) {
-                showTopic(filteredTopics[0]);
+            // Group topics by type for categorized display
+            const groupedTopics = {};
+
+            // Group topics by their type (use 'Uncategorized' for topics without a type)
+            for (let i = 0; i < filteredTopics.length; i++) {
+                const topic = filteredTopics[i];
+                const type = topic.type || 'Uncategorized';
+
+                if (!groupedTopics[type]) {
+                    groupedTopics[type] = [];
+                }
+                groupedTopics[type].push(topic);
+            }
+
+            // Sort types alphabetically
+            const sortedTypes = Object.keys(groupedTopics).sort();
+
+            // Create category sections
+            let firstTopicShown = false;
+            for (let typeIndex = 0; typeIndex < sortedTypes.length; typeIndex++) {
+                const typeName = sortedTypes[typeIndex];
+                const topicsInType = groupedTopics[typeName];
+
+                // Add category title
+                const categoryDiv = document.createElement('div');
+                categoryDiv.className = 'category-section';
+
+                const categoryTitle = document.createElement('div');
+                categoryTitle.className = 'category-title';
+                categoryTitle.textContent = typeName;
+                categoryDiv.appendChild(categoryTitle);
+
+                // Add buttons for each topic in this category
+                for (let i = 0; i < topicsInType.length; i++) {
+                    const topic = topicsInType[i];
+                    const btn = createTopicButton(topic);
+                    categoryDiv.appendChild(btn);
+                }
+
+                container.appendChild(categoryDiv);
+
+                // Show the first topic from the first category
+                if (!firstTopicShown && topicsInType.length > 0) {
+                    showTopic(topicsInType[0]);
+                    firstTopicShown = true;
+                }
             }
         }
 
