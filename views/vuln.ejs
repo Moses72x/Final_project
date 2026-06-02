@@ -166,11 +166,30 @@
             font-style: italic;
         }
 
+        /* Category section styling */
+        .category-section {
+            margin-bottom: 20px;
+        }
+
+        .category-title {
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #8ab3cf;
+            margin: 15px 0 8px 0;
+            padding-left: 8px;
+        }
+
+        .category-title:first-of-type {
+            margin-top: 0;
+        }
+
         /* Vulnerability selection button styling */
         .topic-btn {
             width: 100%;
             padding: 12px 16px;
-            margin-bottom: 10px;
+            margin-bottom: 6px;
             background: #1a4b6e;
             color: #f0f7fc;
             border: none;
@@ -181,6 +200,7 @@
             font-weight: 500;
             font-family: inherit;
             transition: all 0.2s ease;
+            position: relative;
         }
 
         /* Button hover effect with slide */
@@ -195,6 +215,19 @@
             color: white;
             border-left: 3px solid white;
             font-weight: 600;
+        }
+
+        /* Category badge inside topic button */
+        .category-badge {
+            display: inline-block;
+            font-size: 0.65rem;
+            padding: 2px 6px;
+            border-radius: 8px;
+            margin-left: 8px;
+            font-weight: 500;
+            vertical-align: middle;
+            background: #5a6e7a;
+            color: white;
         }
 
         /* Main content area - white card style */
@@ -260,6 +293,19 @@
             background: #0B2B3F;
             border-color: #1C7EB5;
             color: white;
+        }
+
+        .lang-btn.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            filter: grayscale(0.2);
+        }
+
+        .lang-btn.disabled:hover {
+            transform: none;
+            background: #eef2f8;
+            border-color: #dce5ec;
+            color: #2c4a6e;
         }
 
         /* Code block styling with dark background and blue accent */
@@ -447,6 +493,10 @@
                 padding: 6px 12px;
                 font-size: 0.8rem;
             }
+            .category-badge {
+                font-size: 0.55rem;
+                padding: 2px 4px;
+            }
         }
 
         /* Responsive adjustments for mobile devices */
@@ -515,6 +565,52 @@
         }
 
         /**
+         * Generates a consistent color for a given category string
+         * @param {string} category - The vulnerability category
+         * @returns {string} HSL color value
+         */
+        function getColorForCategory(category) {
+            if (!category) return '#5a6e7a';
+
+            // Generate a hash from the category string
+            let hash = 0;
+            for (let i = 0; i < category.length; i++) {
+                hash = ((hash << 5) - hash) + category.charCodeAt(i);
+                hash = hash & hash; // Convert to 32-bit integer
+            }
+
+            // Use the hash to generate a hue between 0 and 360
+            const hue = Math.abs(hash % 360);
+            return `hsl(${hue}, 55%, 45%)`;
+        }
+
+        /**
+         * Checks if a language has example code for the current vulnerability
+         * @param {string} language - The language to check ('php', 'python', or 'node')
+         * @returns {boolean} True if at least one example (insecure or secure) exists
+         */
+        function hasLanguageExamples(language) {
+            if (!currentVuln) return false;
+
+            const insecureField = `insecure_${language}`;
+            const secureField = `secure_${language}`;
+
+            return (currentVuln[insecureField] && currentVuln[insecureField].trim() !== '') ||
+                   (currentVuln[secureField] && currentVuln[secureField].trim() !== '');
+        }
+
+        /**
+         * Gets the first available language with examples
+         * @returns {string} The first language that has examples
+         */
+        function getFirstAvailableLanguage() {
+            if (hasLanguageExamples('php')) return 'php';
+            if (hasLanguageExamples('python')) return 'python';
+            if (hasLanguageExamples('node')) return 'node';
+            return null;
+        }
+
+        /**
          * Gets the example text based on current security type and language
          * @returns {string} The example code
          */
@@ -522,7 +618,28 @@
             if (!currentVuln) return '';
 
             const fieldName = `${currentSecurityType}_${currentLanguage}`;
-            return currentVuln[fieldName] || 'No example available for this language.';
+            const example = currentVuln[fieldName];
+
+            if (example && example.trim() !== '') {
+                return example;
+            }
+
+            // If no example for current language, try to find any available language
+            if (currentLanguage === 'php' && hasLanguageExamples('python')) {
+                return '⚠️ No PHP example available. Please try the Python example above.';
+            } else if (currentLanguage === 'php' && hasLanguageExamples('node')) {
+                return '⚠️ No PHP example available. Please try the Node.js example above.';
+            } else if (currentLanguage === 'python' && hasLanguageExamples('php')) {
+                return '⚠️ No Python example available. Please try the PHP example above.';
+            } else if (currentLanguage === 'python' && hasLanguageExamples('node')) {
+                return '⚠️ No Python example available. Please try the Node.js example above.';
+            } else if (currentLanguage === 'node' && hasLanguageExamples('php')) {
+                return '⚠️ No Node.js example available. Please try the PHP example above.';
+            } else if (currentLanguage === 'node' && hasLanguageExamples('python')) {
+                return '⚠️ No Node.js example available. Please try the Python example above.';
+            }
+
+            return 'No example available for this vulnerability.';
         }
 
         /**
@@ -539,10 +656,20 @@
             const badgeText = currentSecurityType === 'insecure' ? '⚠️ INSECURE EXAMPLE' : '✅ SECURE EXAMPLE';
             const badgeClass = currentSecurityType === 'insecure' ? 'insecure' : 'secure';
 
+            // Check which languages have examples
+            const hasPhp = hasLanguageExamples('php');
+            const hasPython = hasLanguageExamples('python');
+            const hasNode = hasLanguageExamples('node');
+
             // Set active class for language buttons
-            const phpActive = currentLanguage === 'php' ? 'active' : '';
-            const pythonActive = currentLanguage === 'python' ? 'active' : '';
-            const nodeActive = currentLanguage === 'node' ? 'active' : '';
+            const phpActive = (currentLanguage === 'php' && hasPhp) ? 'active' : '';
+            const pythonActive = (currentLanguage === 'python' && hasPython) ? 'active' : '';
+            const nodeActive = (currentLanguage === 'node' && hasNode) ? 'active' : '';
+
+            // Set disabled class for language buttons without examples
+            const phpDisabled = !hasPhp ? 'disabled' : '';
+            const pythonDisabled = !hasPython ? 'disabled' : '';
+            const nodeDisabled = !hasNode ? 'disabled' : '';
 
             // Build HTML content
             let html = `
@@ -550,12 +677,14 @@
                 <div class="example-title">${escapeHtml(currentVuln.name || 'Vulnerability')}</div>
                 <div class="description">${escapeHtml(currentVuln.description || 'No description available')}</div>
 
-                <!-- Language Selection Buttons -->
+                <!-- Language Selection Buttons - Only show if at least one language has examples -->
+                ${(hasPhp || hasPython || hasNode) ? `
                 <div class="language-selector">
-                    <button class="lang-btn ${phpActive}" onclick="setLanguage('php')">PHP</button>
-                    <button class="lang-btn ${pythonActive}" onclick="setLanguage('python')">Python</button>
-                    <button class="lang-btn ${nodeActive}" onclick="setLanguage('node')">Node.js</button>
+                    ${hasPhp ? `<button class="lang-btn ${phpActive}" onclick="setLanguage('php')">PHP</button>` : `<button class="lang-btn disabled" disabled>🐘 PHP</button>`}
+                    ${hasPython ? `<button class="lang-btn ${pythonActive}" onclick="setLanguage('python')">Python</button>` : `<button class="lang-btn disabled" disabled>🐍 Python</button>`}
+                    ${hasNode ? `<button class="lang-btn ${nodeActive}" onclick="setLanguage('node')">Node.js</button>` : `<button class="lang-btn disabled" disabled>📦 Node.js</button>`}
                 </div>
+                ` : '<div class="description" style="color:#c0392b;">No code examples available for this vulnerability.</div>'}
 
                 <!-- Security Type Toggle Buttons -->
                 <div class="toggle-buttons">
@@ -586,8 +715,11 @@
          * @param {string} language - 'php', 'python', or 'node'
          */
         function setLanguage(language) {
-            currentLanguage = language;
-            displayCurrentExample();
+            // Only switch if the language has examples
+            if (hasLanguageExamples(language)) {
+                currentLanguage = language;
+                displayCurrentExample();
+            }
         }
 
         /**
@@ -607,7 +739,15 @@
             if (!vuln) return;
             currentVuln = vuln;
             currentSecurityType = 'insecure'; // Reset to insecure when changing topics
-            currentLanguage = 'php';           // Reset to PHP when changing topics
+
+            // Reset to first available language
+            const firstLang = getFirstAvailableLanguage();
+            if (firstLang) {
+                currentLanguage = firstLang;
+            } else {
+                currentLanguage = 'php';
+            }
+
             displayCurrentExample();
 
             // Update active button state in sidebar
@@ -620,7 +760,41 @@
         }
 
         /**
-         * Builds the sidebar with clickable vulnerability buttons based on search filter
+         * Creates a button element for a vulnerability
+         * @param {Object} vuln - The vulnerability object
+         * @returns {HTMLElement} Button element
+         */
+        function createVulnerabilityButton(vuln) {
+            const btn = document.createElement('button');
+            btn.className = 'topic-btn';
+
+            // Add title text
+            const titleSpan = document.createElement('span');
+            titleSpan.textContent = vuln.name || 'Untitled';
+            btn.appendChild(titleSpan);
+
+            // Add category badge if category exists
+            if (vuln.category) {
+                const badge = document.createElement('span');
+                badge.className = 'category-badge';
+                badge.textContent = vuln.category;
+                // Apply dynamic color based on the category string
+                badge.style.backgroundColor = getColorForCategory(vuln.category);
+                btn.appendChild(badge);
+            }
+
+            btn.setAttribute('data-id', vuln.id);
+
+            // Add click event listener that displays the selected vulnerability
+            btn.addEventListener('click', (function(v) {
+                return function() { showVulnerability(v); };
+            })(vuln));
+
+            return btn;
+        }
+
+        /**
+         * Builds the sidebar with clickable vulnerability buttons grouped by category based on search filter
          * @param {string} searchTerm - Optional term to filter vulnerabilities
          */
         function buildSidebar(searchTerm = '') {
@@ -650,25 +824,65 @@
             // Clear any existing content
             container.innerHTML = '';
 
-            // Create a button for each filtered vulnerability
-            for (let i = 0; i < filteredVulnerabilities.length; i++) {
-                const vuln = filteredVulnerabilities[i];
-                const btn = document.createElement('button');
-                btn.className = 'topic-btn';
-                btn.textContent = vuln.name || 'Untitled';
-                btn.setAttribute('data-id', vuln.id);
-
-                // Add click event listener that displays the selected vulnerability
-                btn.addEventListener('click', (function(v) {
-                    return function() { showVulnerability(v); };
-                })(vuln));
-
-                container.appendChild(btn);
+            // If search is active, show flat list without categories
+            if (searchTerm && searchTerm.trim() !== '') {
+                for (let i = 0; i < filteredVulnerabilities.length; i++) {
+                    const vuln = filteredVulnerabilities[i];
+                    const btn = createVulnerabilityButton(vuln);
+                    container.appendChild(btn);
+                }
+                if (filteredVulnerabilities.length > 0) {
+                    showVulnerability(filteredVulnerabilities[0]);
+                }
+                return;
             }
 
-            // Only auto-select first vulnerability if no search term is active or if search has results
-            if (filteredVulnerabilities.length > 0 && !searchTerm) {
-                showVulnerability(filteredVulnerabilities[0]);
+            // Group vulnerabilities by category for categorized display
+            const groupedVulnerabilities = {};
+
+            // Group vulnerabilities by their category (use 'Uncategorized' for vulnerabilities without a category)
+            for (let i = 0; i < filteredVulnerabilities.length; i++) {
+                const vuln = filteredVulnerabilities[i];
+                const category = vuln.category || 'Uncategorized';
+
+                if (!groupedVulnerabilities[category]) {
+                    groupedVulnerabilities[category] = [];
+                }
+                groupedVulnerabilities[category].push(vuln);
+            }
+
+            // Sort categories alphabetically
+            const sortedCategories = Object.keys(groupedVulnerabilities).sort();
+
+            // Create category sections
+            let firstVulnerabilityShown = false;
+            for (let categoryIndex = 0; categoryIndex < sortedCategories.length; categoryIndex++) {
+                const categoryName = sortedCategories[categoryIndex];
+                const vulnerabilitiesInCategory = groupedVulnerabilities[categoryName];
+
+                // Add category title
+                const categoryDiv = document.createElement('div');
+                categoryDiv.className = 'category-section';
+
+                const categoryTitle = document.createElement('div');
+                categoryTitle.className = 'category-title';
+                categoryTitle.textContent = categoryName;
+                categoryDiv.appendChild(categoryTitle);
+
+                // Add buttons for each vulnerability in this category
+                for (let i = 0; i < vulnerabilitiesInCategory.length; i++) {
+                    const vuln = vulnerabilitiesInCategory[i];
+                    const btn = createVulnerabilityButton(vuln);
+                    categoryDiv.appendChild(btn);
+                }
+
+                container.appendChild(categoryDiv);
+
+                // Show the first vulnerability from the first category
+                if (!firstVulnerabilityShown && vulnerabilitiesInCategory.length > 0) {
+                    showVulnerability(vulnerabilitiesInCategory[0]);
+                    firstVulnerabilityShown = true;
+                }
             }
         }
 
