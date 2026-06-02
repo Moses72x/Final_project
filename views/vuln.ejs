@@ -223,8 +223,43 @@
             margin: 20px 0;
             line-height: 1.7;
             color: #2c4a6e;
-            font-size: 1.5rem;
+            font-size: 1.2rem;
             padding: 0 4px;
+        }
+
+        /* Language selector buttons */
+        .language-selector {
+            margin: 20px 0;
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            padding: 0 4px;
+        }
+
+        .lang-btn {
+            padding: 10px 20px;
+            background: #eef2f8;
+            border: 2px solid #dce5ec;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            font-family: inherit;
+            transition: all 0.2s ease;
+            color: #2c4a6e;
+        }
+
+        .lang-btn:hover {
+            background: #1C7EB5;
+            border-color: #1C7EB5;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .lang-btn.active {
+            background: #0B2B3F;
+            border-color: #1C7EB5;
+            color: white;
         }
 
         /* Code block styling with dark background and blue accent */
@@ -234,7 +269,7 @@
             padding: 20px;
             margin: 20px 0;
             font-family: 'Courier New', 'Fira Code', monospace;
-            font-size: 1.2rem;
+            font-size: 0.95rem;
             white-space: pre-wrap;
             overflow-x: auto;
             border-radius: 12px;
@@ -270,7 +305,7 @@
 
         /* Explanation text content */
         .explanation-text {
-            font-size: 1.5rem;
+            font-size: 1rem;
             line-height: 1.7;
             color: #2c4a6e;
         }
@@ -395,6 +430,9 @@
             .example-title {
                 font-size: 1.5rem;
             }
+            .description {
+                font-size: 1rem;
+            }
             .toggle-buttons {
                 gap: 8px;
             }
@@ -405,12 +443,16 @@
             .explanation-section {
                 padding: 16px 20px;
             }
+            .lang-btn {
+                padding: 6px 12px;
+                font-size: 0.8rem;
+            }
         }
 
         /* Responsive adjustments for mobile devices */
         @media (max-width: 480px) {
             .example-code {
-                font-size: 0.8rem;
+                font-size: 0.7rem;
                 padding: 12px;
             }
         }
@@ -440,7 +482,7 @@
         <div class="content">
             <div id="main">
                 <div class="example-title">📚 Select a vulnerability</div>
-                <div class="description">Choose a vulnerability from the sidebar, then toggle between insecure and secure examples to learn secure coding practices.</div>
+                <div class="description">Choose a vulnerability from the sidebar, then select a programming language and toggle between insecure and secure examples.</div>
             </div>
         </div>
     </div>
@@ -452,9 +494,10 @@
         // Debug log to verify vulnerabilities data in browser console
         console.log('Vulnerabilities loaded:', vulnerabilities);
 
-        // State variables for current vulnerability and example type
-        let currentVuln = null;      // Currently selected vulnerability object
-        let currentType = 'insecure_example'; // 'insecure_example' or 'secure_example'
+        // State variables for current vulnerability, example type, and language
+        let currentVuln = null;           // Currently selected vulnerability object
+        let currentSecurityType = 'insecure'; // 'insecure' or 'secure'
+        let currentLanguage = 'php';       // 'php', 'python', or 'node'
 
         /**
          * Escapes HTML special characters to prevent XSS attacks
@@ -472,31 +515,56 @@
         }
 
         /**
+         * Gets the example text based on current security type and language
+         * @returns {string} The example code
+         */
+        function getExampleText() {
+            if (!currentVuln) return '';
+
+            const fieldName = `${currentSecurityType}_${currentLanguage}`;
+            return currentVuln[fieldName] || 'No example available for this language.';
+        }
+
+        /**
          * Displays the current vulnerability example in the main content area
-         * Shows badge, title, description, toggle buttons, code example, and explanation
+         * Shows badge, title, description, language buttons, toggle buttons, code example, and explanation
          */
         function displayCurrentExample() {
             if (!currentVuln) return;
 
-            // Get the appropriate example text based on current type
-            const exampleText = currentType === 'insecure_example'
-                ? currentVuln.insecure_example
-                : currentVuln.secure_example;
+            // Get the appropriate example text
+            const exampleText = getExampleText();
 
-            // Set badge text and styling based on example type
-            const badgeText = currentType === 'insecure_example' ? '⚠️ INSECURE EXAMPLE' : '✅ SECURE EXAMPLE';
-            const badgeClass = currentType === 'insecure_example' ? 'insecure' : 'secure';
+            // Set badge text and styling based on security type
+            const badgeText = currentSecurityType === 'insecure' ? '⚠️ INSECURE EXAMPLE' : '✅ SECURE EXAMPLE';
+            const badgeClass = currentSecurityType === 'insecure' ? 'insecure' : 'secure';
+
+            // Set active class for language buttons
+            const phpActive = currentLanguage === 'php' ? 'active' : '';
+            const pythonActive = currentLanguage === 'python' ? 'active' : '';
+            const nodeActive = currentLanguage === 'node' ? 'active' : '';
 
             // Build HTML content
             let html = `
                 <div class="badge ${badgeClass}">${badgeText}</div>
                 <div class="example-title">${escapeHtml(currentVuln.name || 'Vulnerability')}</div>
                 <div class="description">${escapeHtml(currentVuln.description || 'No description available')}</div>
-                <div class="toggle-buttons">
-                    <button class="toggle-btn insecure" onclick="setExampleType('insecure_example')">🔓 Show Insecure Example</button>
-                    <button class="toggle-btn secure" onclick="setExampleType('secure_example')">🔒 Show Secure Example</button>
+
+                <!-- Language Selection Buttons -->
+                <div class="language-selector">
+                    <button class="lang-btn ${phpActive}" onclick="setLanguage('php')">PHP</button>
+                    <button class="lang-btn ${pythonActive}" onclick="setLanguage('python')">Python</button>
+                    <button class="lang-btn ${nodeActive}" onclick="setLanguage('node')">Node.js</button>
                 </div>
-                <div class="example-code">${escapeHtml(exampleText || 'No example available')}</div>
+
+                <!-- Security Type Toggle Buttons -->
+                <div class="toggle-buttons">
+                    <button class="toggle-btn insecure" onclick="setSecurityType('insecure')">🔓 Show Insecure Example</button>
+                    <button class="toggle-btn secure" onclick="setSecurityType('secure')">🔒 Show Secure Example</button>
+                </div>
+
+                <!-- Code Example -->
+                <div class="example-code">${escapeHtml(exampleText)}</div>
             `;
 
             // Add explanation section if explanation text exists in the database
@@ -514,11 +582,20 @@
         }
 
         /**
-         * Switches between insecure and secure example views
-         * @param {string} type - Either 'insecure_example' or 'secure_example'
+         * Switches between programming languages
+         * @param {string} language - 'php', 'python', or 'node'
          */
-        function setExampleType(type) {
-            currentType = type;
+        function setLanguage(language) {
+            currentLanguage = language;
+            displayCurrentExample();
+        }
+
+        /**
+         * Switches between insecure and secure example views
+         * @param {string} type - Either 'insecure' or 'secure'
+         */
+        function setSecurityType(type) {
+            currentSecurityType = type;
             displayCurrentExample();
         }
 
@@ -529,7 +606,8 @@
         function showVulnerability(vuln) {
             if (!vuln) return;
             currentVuln = vuln;
-            currentType = 'insecure_example'; // Reset to insecure when changing topics
+            currentSecurityType = 'insecure'; // Reset to insecure when changing topics
+            currentLanguage = 'php';           // Reset to PHP when changing topics
             displayCurrentExample();
 
             // Update active button state in sidebar
@@ -594,8 +672,9 @@
             }
         }
 
-        // Make setExampleType function globally accessible for inline onclick handlers
-        window.setExampleType = setExampleType;
+        // Make functions globally accessible for inline onclick handlers
+        window.setLanguage = setLanguage;
+        window.setSecurityType = setSecurityType;
 
         // Initialize the page by building the sidebar
         buildSidebar();
