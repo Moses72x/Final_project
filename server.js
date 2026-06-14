@@ -5,6 +5,7 @@ import { supabase } from "./config/supabase.js"; // Supabase client for database
 import dotenv from "dotenv"; // Load environment variables from .env file
 import path from "path"; // For handling file paths
 import { fileURLToPath } from "url"; // For ES module compatibility
+import { runScan } from "./scanner.js"; // Import the vulnerability scanner
 
 // Get __dirname equivalent in ES modules
 const __filename = fileURLToPath(import.meta.url);
@@ -27,7 +28,7 @@ app.use(
   cors({
     origin:
       process.env.NODE_ENV === "production"
-        ? process.env.RENDER_URL || "https://your-app.onrender.com" // Replace with your actual Render URL
+        ? process.env.RENDER_URL || "https://your-app.onrender.com"
         : "http://localhost:3000",
     credentials: true,
   }),
@@ -111,12 +112,63 @@ app.get("/chat", async (req, res) => {
     // Render the EJS template and pass the topic list and AI questions for context
     res.render("ai", {
       titlesList: titlesList,
-      aiQuestions: aiQuestions || [], // Pass the preset questions to the template
+      aiQuestions: aiQuestions || [],
       pageTitle: "AI Security Assistant - SecureCodeHub",
     });
   } catch (error) {
     console.error("Error loading chat page:", error);
     res.status(500).send("Error loading chat interface");
+  }
+});
+
+// Route: Vulnerability Scanner page
+app.get("/scanner", async (req, res) => {
+  try {
+    res.render("scanner", {
+      pageTitle: "Website Vulnerability Scanner - SecureCodeHub",
+    });
+  } catch (error) {
+    console.error("Error loading scanner page:", error);
+    res.status(500).send("Error loading scanner interface");
+  }
+});
+
+// API Endpoint: Run vulnerability scan
+app.post("/api/scan", async (req, res) => {
+  const { url } = req.body;
+
+  // Validate request
+  if (!url || url.trim() === "") {
+    return res.status(400).json({ error: "URL is required" });
+  }
+
+  // Basic URL validation
+  try {
+    new URL(url);
+  } catch (error) {
+    return res.status(400).json({
+      error: "Please enter a valid URL (including http:// or https://)",
+    });
+  }
+
+  console.log(`[Scan API] Starting scan of: ${url}`);
+
+  try {
+    // Run the scan
+    const result = await runScan(url);
+
+    if (result.success) {
+      console.log(
+        `[Scan API] Scan completed for ${url}, found ${result.alerts?.length || 0} issues`,
+      );
+      res.json(result);
+    } else {
+      console.error(`[Scan API] Scan failed for ${url}:`, result.error);
+      res.status(500).json({ error: result.error || "Scan failed" });
+    }
+  } catch (error) {
+    console.error("[Scan API] Error:", error.message);
+    res.status(500).json({ error: "Failed to run vulnerability scan" });
   }
 });
 
@@ -164,7 +216,6 @@ app.post("/api/chat", async (req, res) => {
         headers: {
           Authorization: `Bearer ${process.env.API_KEY}`,
           "Content-Type": "application/json",
-          // Optional but recommended for OpenRouter
           "HTTP-Referer":
             process.env.RENDER_URL || "https://securecodehub.onrender.com",
           "X-Title": "SecureCodeHub",
@@ -179,7 +230,6 @@ app.post("/api/chat", async (req, res) => {
             ...history,
             { role: "user", content: message },
           ],
-          // Add timeout and max tokens to prevent long responses
           max_tokens: 500,
           temperature: 0.7,
         }),
@@ -213,7 +263,6 @@ app.post("/api/chat", async (req, res) => {
     res.json({ reply });
   } catch (error) {
     console.error("[Chat API] Error:", error.message);
-    // Send more detailed error for debugging (but not too detailed for production)
     res.status(500).json({
       error: "Failed to get response from AI",
       details:

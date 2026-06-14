@@ -1,0 +1,6 @@
+sudo docker stop zap-api
+sudo docker rm zap-api
+
+sudo docker run -d -p 8080:8080 --name zap-api ghcr.io/zaproxy/zaproxy:stable zap.sh -daemon -port 8080 -host 0.0.0.0 -config api.disablekey=true -config api.addrs.addr.name=.* -config api.addrs.addr.regex=true
+
+curl http://localhost:8080/JSON/core/view/version/
