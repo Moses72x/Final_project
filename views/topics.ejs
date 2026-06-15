@@ -418,7 +418,7 @@
         // Attempt to retrieve topics data injected from the server (EJS template)
         // Handles both array and single object formats for flexibility
         <% if (typeof locals.topics !== 'undefined') { %>
-            topics = <%- JSON.stringify(locals.topics) %>;
+            topics = <%- JSON.stringify(locals.topics || []).replace(/<\//g, '<\\/') %>;
         <% } else if (typeof locals.topic !== 'undefined') { %>
             // If a single topic object is provided, wrap it in an array
             const topicData = <%- JSON.stringify(locals.topic) %>;
