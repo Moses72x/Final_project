@@ -213,6 +213,82 @@
             color: white;
         }
 
+        /* Area badge styling in main content */
+        .area-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-bottom: 16px;
+            margin-left: 24px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .area-badge.frontend {
+            background: #3498db;
+            color: white;
+        }
+
+        .area-badge.backend {
+            background: #2ecc71;
+            color: white;
+        }
+
+        .area-badge.fullstack {
+            background: #9b59b6;
+            color: white;
+        }
+
+        .area-badge.unknown {
+            background: #95a5a6;
+            color: white;
+        }
+
+        /* Impact badge styling - no hard-coded values */
+        .impact-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-bottom: 16px;
+            margin-left: 24px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Dynamic color for impact based on value */
+        .impact-badge[data-impact="critical"] {
+            background: #c0392b;
+            color: white;
+        }
+
+        .impact-badge[data-impact="high"] {
+            background: #e67e22;
+            color: white;
+        }
+
+        .impact-badge[data-impact="medium"] {
+            background: #f39c12;
+            color: white;
+        }
+
+        .impact-badge[data-impact="low"] {
+            background: #27ae60;
+            color: white;
+        }
+
+        .impact-badge[data-impact="info"] {
+            background: #3498db;
+            color: white;
+        }
+
+        .impact-badge[data-impact=""] {
+            display: none;
+        }
+
         .content {
             flex: 1;
             background: white;
@@ -225,7 +301,7 @@
         .example-title {
             font-size: 2rem;
             font-weight: 700;
-            margin-bottom: 20px;
+            margin-bottom: 4px;
             color: #0B2B3F;
             letter-spacing: -0.02em;
             border-left: 4px solid #1C7EB5;
@@ -460,6 +536,16 @@
                 font-size: 0.55rem;
                 padding: 2px 4px;
             }
+            .area-badge {
+                font-size: 0.7rem;
+                padding: 4px 10px;
+                margin-left: 20px;
+            }
+            .impact-badge {
+                font-size: 0.7rem;
+                padding: 4px 10px;
+                margin-left: 20px;
+            }
         }
 
         @media (max-width: 480px) {
@@ -541,6 +627,34 @@
             return 'No example available for this language.';
         }
 
+        /**
+         * Gets the CSS class for an area badge
+         * @param {string} area - The area (frontend, backend, fullstack)
+         * @returns {string} CSS class name
+         */
+        function getAreaBadgeClass(area) {
+            if (!area) return 'unknown';
+            const areaLower = area.toLowerCase();
+            if (areaLower === 'frontend' || areaLower === 'front-end') return 'frontend';
+            if (areaLower === 'backend' || areaLower === 'back-end') return 'backend';
+            if (areaLower === 'fullstack' || areaLower === 'full-stack') return 'fullstack';
+            return 'unknown';
+        }
+
+        /**
+         * Gets the display label for an area
+         * @param {string} area - The area value from database
+         * @returns {string} Human-readable label
+         */
+        function getAreaLabel(area) {
+            if (!area) return 'Unknown';
+            const areaLower = area.toLowerCase();
+            if (areaLower === 'frontend' || areaLower === 'front-end') return 'Frontend';
+            if (areaLower === 'backend' || areaLower === 'back-end') return 'Backend';
+            if (areaLower === 'fullstack' || areaLower === 'full-stack') return 'Full Stack';
+            return area;
+        }
+
         // SAFE: Use textContent for EVERYTHING - no innerHTML for user data
         function displayCurrentExample() {
             if (!currentVuln) return;
@@ -565,6 +679,25 @@
             title.className = 'example-title';
             title.textContent = currentVuln.name || 'Vulnerability';
             main.appendChild(title);
+
+            // Area badge
+            if (currentVuln.area) {
+                const areaClass = getAreaBadgeClass(currentVuln.area);
+                const areaLabel = getAreaLabel(currentVuln.area);
+                const areaBadge = document.createElement('div');
+                areaBadge.className = `area-badge ${areaClass}`;
+                areaBadge.textContent = `📍 ${areaLabel}`;
+                main.appendChild(areaBadge);
+            }
+
+            // Impact badge - display the value as-is from the database
+            if (currentVuln.impact && currentVuln.impact.trim() !== '') {
+                const impactBadge = document.createElement('div');
+                impactBadge.className = 'impact-badge';
+                impactBadge.setAttribute('data-impact', currentVuln.impact.toLowerCase());
+                impactBadge.textContent = `⚡ ${currentVuln.impact}`;
+                main.appendChild(impactBadge);
+            }
 
             // Description - using textContent for safety
             const desc = document.createElement('div');

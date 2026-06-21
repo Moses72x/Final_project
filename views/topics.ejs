@@ -4,14 +4,12 @@
     <meta charset="UTF-8">
     <title>SecureCodeHub — Security Topics</title>
     <style>
-        /* Reset default browser margins and box sizing for consistent rendering */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
 
-        /* Body styling with gradient background matching SecureCodeHub theme */
         body {
             font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
             display: flex;
@@ -19,7 +17,6 @@
             background: linear-gradient(145deg, #f0f4f8 0%, #e6edf4 100%);
         }
 
-        /* Sidebar styling - deep blue/black theme */
         .sidebar {
             width: 280px;
             background: #0B2B3F;
@@ -29,7 +26,6 @@
             box-shadow: 2px 0 12px rgba(0, 0, 0, 0.08);
         }
 
-        /* Sidebar title with blue accent border */
         .sidebar h2 {
             font-size: 1.6rem;
             font-weight: 600;
@@ -40,7 +36,6 @@
             color: white;
         }
 
-        /* Home button styling - positioned at top of sidebar */
         .home-button {
             display: flex;
             align-items: center;
@@ -60,23 +55,19 @@
             width: 100%;
         }
 
-        /* Home button hover effect */
         .home-button:hover {
             background: #2c7cb6;
             transform: translateX(4px);
         }
 
-        /* Home button active/press effect */
         .home-button:active {
             transform: translateX(2px);
         }
 
-        /* Home icon styling */
         .home-icon {
             font-size: 1.2rem;
         }
 
-        /* Search bar styling */
         .search-container {
             margin-bottom: 20px;
             position: relative;
@@ -136,7 +127,6 @@
             opacity: 1;
         }
 
-        /* No results message */
         .no-results {
             text-align: center;
             color: #a0c4e0;
@@ -145,7 +135,6 @@
             font-style: italic;
         }
 
-        /* Category section styling */
         .category-section {
             margin-bottom: 20px;
         }
@@ -164,7 +153,6 @@
             margin-top: 0;
         }
 
-        /* Topic selection button styling */
         .topic-btn {
             width: 100%;
             padding: 12px 16px;
@@ -182,13 +170,11 @@
             position: relative;
         }
 
-        /* Topic button hover effect */
         .topic-btn:hover {
             background: #2c7cb6;
             transform: translateX(4px);
         }
 
-        /* Active/selected topic button styling */
         .topic-btn.active {
             background: #1C7EB5;
             color: white;
@@ -196,7 +182,6 @@
             font-weight: 600;
         }
 
-        /* Type badge inside topic button - dynamically colored based on type */
         .topic-type-badge {
             display: inline-block;
             font-size: 0.65rem;
@@ -209,7 +194,39 @@
             color: white;
         }
 
-        /* Main content area - white card style */
+        /* Area badge styling in main content */
+        .area-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-bottom: 16px;
+            margin-left: 24px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .area-badge.frontend {
+            background: #3498db;
+            color: white;
+        }
+
+        .area-badge.backend {
+            background: #2ecc71;
+            color: white;
+        }
+
+        .area-badge.fullstack {
+            background: #9b59b6;
+            color: white;
+        }
+
+        .area-badge.unknown {
+            background: #95a5a6;
+            color: white;
+        }
+
         .content {
             flex: 1;
             padding: 40px 48px;
@@ -217,18 +234,16 @@
             overflow-y: auto;
         }
 
-        /* Topic title styling with blue left border */
         .title {
             font-size: 2rem;
             font-weight: 700;
-            margin-bottom: 24px;
+            margin-bottom: 4px;
             color: #0B2B3F;
             letter-spacing: -0.02em;
             border-left: 4px solid #1C7EB5;
             padding-left: 20px;
         }
 
-        /* Main content text styling */
         .content-text {
             font-size: 1.2rem;
             line-height: 1.7;
@@ -237,7 +252,6 @@
             padding: 0 4px;
         }
 
-        /* Image container styling - larger display area */
         .topic-image {
             margin: 20px 0 28px 0;
             text-align: center;
@@ -246,7 +260,6 @@
             border-radius: 16px;
         }
 
-        /* Image styling with responsive sizing */
         .topic-image img {
             width: 100%;
             min-width: 300px;
@@ -256,7 +269,6 @@
             border: 2px solid #e2edf7;
         }
 
-        /* Explanation section styling */
         .explanation {
             font-size: 1.2rem;
             line-height: 1.7;
@@ -268,7 +280,6 @@
             border-left: 4px solid #1C7EB5;
         }
 
-        /* Vulnerabilities section container */
         .vulnerabilities-section {
             margin-top: 20px;
             padding: 20px;
@@ -276,7 +287,6 @@
             border-radius: 16px;
         }
 
-        /* Vulnerabilities section title */
         .vulnerabilities-title {
             font-size: 1.25rem;
             font-weight: 700;
@@ -287,19 +297,16 @@
             gap: 8px;
         }
 
-        /* Warning icon before vulnerabilities title */
         .vulnerabilities-title:before {
             content: "⚠️";
             font-size: 1.3rem;
         }
 
-        /* List of vulnerabilities */
         .vulnerabilities-list {
             list-style: none;
             padding: 0;
         }
 
-        /* Individual vulnerability item styling */
         .vulnerability-item {
             padding: 12px 16px;
             margin-bottom: 10px;
@@ -311,14 +318,12 @@
             transition: all 0.2s ease;
         }
 
-        /* Vulnerability item hover effect */
         .vulnerability-item:hover {
             border-color: #1C7EB5;
             transform: translateX(4px);
             background: #ffffff;
         }
 
-        /* Empty state styling */
         .empty {
             color: #7f8c9a;
             text-align: center;
@@ -326,7 +331,6 @@
             font-size: 1rem;
         }
 
-        /* Custom scrollbar for sidebar */
         .sidebar::-webkit-scrollbar {
             width: 5px;
         }
@@ -338,7 +342,6 @@
             border-radius: 10px;
         }
 
-        /* Custom scrollbar for content area */
         .content::-webkit-scrollbar {
             width: 6px;
         }
@@ -350,7 +353,6 @@
             border-radius: 10px;
         }
 
-        /* Responsive adjustments for tablets */
         @media (max-width: 768px) {
             .content {
                 padding: 24px 20px;
@@ -373,9 +375,13 @@
                 font-size: 0.55rem;
                 padding: 2px 4px;
             }
+            .area-badge {
+                font-size: 0.7rem;
+                padding: 4px 10px;
+                margin-left: 20px;
+            }
         }
 
-        /* Larger image sizing for desktop screens */
         @media (min-width: 1200px) {
             .topic-image img {
                 max-width: 80%;
@@ -385,7 +391,6 @@
     </style>
 </head>
 <body>
-    <!-- Sidebar with home button and topic navigation -->
     <div class="sidebar">
         <a href="/" class="home-button">
             <span class="home-icon">🏠</span>
@@ -393,7 +398,6 @@
         </a>
         <h2>Security Topics</h2>
 
-        <!-- Search bar -->
         <div class="search-container">
             <span class="search-icon">🔍</span>
             <input type="text" id="searchInput" class="search-input" placeholder="Search topics...">
@@ -403,7 +407,6 @@
         <div id="topicList"></div>
     </div>
 
-    <!-- Main content area where selected topic details are displayed -->
     <div class="content">
         <div id="main">
             <div class="title">Select a topic</div>
@@ -471,6 +474,34 @@
         }
 
         /**
+         * Gets the CSS class for an area badge
+         * @param {string} area - The area (frontend, backend, fullstack)
+         * @returns {string} CSS class name
+         */
+        function getAreaBadgeClass(area) {
+            if (!area) return 'unknown';
+            const areaLower = area.toLowerCase();
+            if (areaLower === 'frontend' || areaLower === 'front-end') return 'frontend';
+            if (areaLower === 'backend' || areaLower === 'back-end') return 'backend';
+            if (areaLower === 'fullstack' || areaLower === 'full-stack') return 'fullstack';
+            return 'unknown';
+        }
+
+        /**
+         * Gets the display label for an area
+         * @param {string} area - The area value from database
+         * @returns {string} Human-readable label
+         */
+        function getAreaLabel(area) {
+            if (!area) return 'Unknown';
+            const areaLower = area.toLowerCase();
+            if (areaLower === 'frontend' || areaLower === 'front-end') return 'Frontend';
+            if (areaLower === 'backend' || areaLower === 'back-end') return 'Backend';
+            if (areaLower === 'fullstack' || areaLower === 'full-stack') return 'Full Stack';
+            return area;
+        }
+
+        /**
          * Checks if vulnerabilities exist and are non-empty
          * @param {Array} vulnerabilities - Array of vulnerability strings
          * @returns {boolean} True if vulnerabilities exist and have content
@@ -495,7 +526,7 @@
 
         /**
          * Displays the selected topic in the main content area
-         * Order of display: Title → Content → Image → Explanation → Vulnerabilities (if any)
+         * Order of display: Title → Area Badge → Content → Image → Explanation → Vulnerabilities (if any)
          * @param {Object} topic - The topic object containing all fields
          */
         function showTopic(topic) {
@@ -507,6 +538,13 @@
 
             // Start with the topic title
             let html = `<div class="title">${escapeHtml(topic.title)}</div>`;
+
+            // Add area badge if area exists
+            if (topic.area) {
+                const areaClass = getAreaBadgeClass(topic.area);
+                const areaLabel = getAreaLabel(topic.area);
+                html += `<div class="area-badge ${areaClass}">📍 ${areaLabel}</div>`;
+            }
 
             // 1. CONTENT section (main description of the topic)
             if (topic.content && topic.content.trim() !== '') {

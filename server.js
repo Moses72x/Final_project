@@ -45,7 +45,26 @@ app.use(express.static(path.join(__dirname, "public")));
 // Route: Home page
 app.get("/", async (req, res) => {
   try {
-    res.render("index");
+    // Fetch a random security tip from the security_tip table
+    const { data: tips, error } = await supabase
+      .from("security_tip")
+      .select("tip");
+
+    let randomTip = null;
+
+    if (error) {
+      console.error("Error fetching security tips:", error);
+    } else if (tips && tips.length > 0) {
+      // Select a random tip from the array
+      const randomIndex = Math.floor(Math.random() * tips.length);
+      randomTip = tips[randomIndex].tip;
+      console.log(`[Home Page] Loaded security tip: "${randomTip}"`);
+    } else {
+      console.log("[Home Page] No security tips found in database");
+    }
+
+    // Render the index page with the random tip
+    res.render("index", { securityTip: randomTip });
   } catch (error) {
     console.error("Error rendering index:", error);
     res.status(500).send("Error loading home page");
@@ -283,10 +302,10 @@ app.get("/health", (req, res) => {
 
 // Start the server
 app.listen(port, () => {
-  console.log(`✅ Server is running on port ${port}`);
-  console.log(`📍 Local: http://localhost:${port}`);
+  console.log(`Server is running on port ${port}`);
+  console.log(`Local: http://localhost:${port}`);
   if (process.env.RENDER_URL) {
-    console.log(`📍 Render: ${process.env.RENDER_URL}`);
+    console.log(`Render: ${process.env.RENDER_URL}`);
   }
-  console.log(`🔑 API Key configured: ${!!process.env.API_KEY}`);
+  console.log(`API Key configured: ${!!process.env.API_KEY}`);
 });

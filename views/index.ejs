@@ -133,6 +133,46 @@
             border-left: 3px solid #1C7EB5;
         }
 
+        /* Security Tip of the Day section */
+        .tip-section {
+            background: linear-gradient(135deg, #0B2B3F, #1C587A);
+            border-radius: 2rem;
+            padding: 1.5rem 2rem;
+            margin: 1.5rem 0 2rem 0;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(28, 126, 181, 0.3);
+            text-align: center;
+        }
+
+        .tip-section .tip-icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .tip-section .tip-label {
+            color: #8ab3cf;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .tip-section .tip-text {
+            color: white;
+            font-size: 1.2rem;
+            line-height: 1.6;
+            font-weight: 400;
+        }
+
+        .tip-section .tip-text::before {
+            content: '"';
+        }
+
+        .tip-section .tip-text::after {
+            content: '"';
+        }
+
         /* Grid container for the feature cards */
         .paths-grid {
             display: flex;
@@ -349,6 +389,7 @@
             .info-card { padding: 1.2rem 1.5rem; }
             .info-card h4 { font-size: 1.1rem; }
             .info-card p { font-size: 0.9rem; }
+            .tip-section .tip-text { font-size: 1rem; }
         }
 
         /* Responsive styles for mobile devices */
@@ -357,6 +398,8 @@
             .card-link { padding: 1.3rem 1rem; }
             .purpose-section { padding: 1.2rem 1rem; }
             .info-card h4 { font-size: 1rem; }
+            .tip-section { padding: 1rem 1.2rem; }
+            .tip-section .tip-text { font-size: 0.9rem; }
         }
     </style>
 </head>
@@ -390,6 +433,15 @@
             </div>
         </div>
     </div>
+
+    <!-- Security Tip of the Day -->
+    <% if (typeof securityTip !== 'undefined' && securityTip) { %>
+    <div class="tip-section">
+        <div class="tip-icon">💡</div>
+        <div class="tip-label">Security Tip of the Day</div>
+        <div class="tip-text"><%= securityTip %></div>
+    </div>
+    <% } %>
 
     <!-- Grid of navigation cards -->
     <div class="paths-grid">
@@ -475,8 +527,8 @@
             </div>
 
             <div class="info-card">
-                <h4>🎯 Why Use SecureCodeHub?</h4>
-                <p>We make security accessible to everyone — no prior cybersecurity experience needed. SecureCodeHub provides clear, beginner-friendly explanations, real-world code examples showing both insecure and secure patterns, an AI assistant to guide you personally, a website vulnerability scanner, and a structured learning path that takes you from "I don't know where to start" to confidently securing your applications. Everything you need is here, all in one place.</p>
+                <h4>👥 About Us</h4>
+                <p>SecureCodeHub was created to bridge the gap between developers and security knowledge. We believe that security should be accessible to everyone, not just security professionals. Our platform is built by developers, for developers — with a focus on practical, real-world security concepts that you can immediately apply to your projects. Whether you're a beginner looking to understand the basics or an experienced developer wanting to deepen your security knowledge, SecureCodeHub is here to guide you every step of the way.</p>
             </div>
         </div>
     </div>
