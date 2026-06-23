@@ -23,6 +23,8 @@
             max-width: 1600px;
             width: 100%;
             flex: 1;
+            height: 100vh;
+            max-height: 100vh;
         }
 
         .sidebar {
@@ -35,6 +37,9 @@
             border: 1px solid rgba(28, 126, 181, 0.35);
             display: flex;
             flex-direction: column;
+            height: 100vh;
+            position: sticky;
+            top: 0;
         }
 
         .home-button {
@@ -54,6 +59,7 @@
             border: none;
             cursor: pointer;
             width: 100%;
+            flex-shrink: 0;
         }
 
         .home-button:hover {
@@ -80,6 +86,7 @@
             display: flex;
             align-items: center;
             gap: 10px;
+            flex-shrink: 0;
         }
 
         .sidebar h2:before {
@@ -90,6 +97,7 @@
         .search-container {
             margin-bottom: 20px;
             position: relative;
+            flex-shrink: 0;
         }
 
         .search-icon {
@@ -296,6 +304,7 @@
             overflow-y: auto;
             box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
             border: 1px solid rgba(28, 88, 122, 0.15);
+            height: 100vh;
         }
 
         .example-title {
@@ -503,14 +512,20 @@
                 flex-direction: column;
                 padding: 1rem;
                 gap: 1rem;
+                height: auto;
+                max-height: none;
             }
             .sidebar {
                 width: 100%;
                 border-radius: 1.6rem;
                 padding: 1.2rem;
+                height: auto;
+                max-height: 400px;
+                position: static;
             }
             .content {
                 padding: 1.5rem;
+                height: auto;
             }
             .example-title {
                 font-size: 1.5rem;
@@ -627,11 +642,6 @@
             return 'No example available for this language.';
         }
 
-        /**
-         * Gets the CSS class for an area badge
-         * @param {string} area - The area (frontend, backend, fullstack)
-         * @returns {string} CSS class name
-         */
         function getAreaBadgeClass(area) {
             if (!area) return 'unknown';
             const areaLower = area.toLowerCase();
@@ -641,11 +651,6 @@
             return 'unknown';
         }
 
-        /**
-         * Gets the display label for an area
-         * @param {string} area - The area value from database
-         * @returns {string} Human-readable label
-         */
         function getAreaLabel(area) {
             if (!area) return 'Unknown';
             const areaLower = area.toLowerCase();
@@ -655,7 +660,6 @@
             return area;
         }
 
-        // SAFE: Use textContent for EVERYTHING - no innerHTML for user data
         function displayCurrentExample() {
             if (!currentVuln) return;
 
@@ -664,23 +668,19 @@
             const hasPython = hasLanguageExamples('python');
             const hasNode = hasLanguageExamples('node');
 
-            // Clear the main container
             const main = document.getElementById('main');
             main.innerHTML = '';
 
-            // Badge
             const badge = document.createElement('div');
             badge.className = `badge ${currentSecurityType === 'insecure' ? 'insecure' : 'secure'}`;
             badge.textContent = currentSecurityType === 'insecure' ? '⚠️ INSECURE EXAMPLE' : '✅ SECURE EXAMPLE';
             main.appendChild(badge);
 
-            // Title
             const title = document.createElement('div');
             title.className = 'example-title';
             title.textContent = currentVuln.name || 'Vulnerability';
             main.appendChild(title);
 
-            // Area badge
             if (currentVuln.area) {
                 const areaClass = getAreaBadgeClass(currentVuln.area);
                 const areaLabel = getAreaLabel(currentVuln.area);
@@ -690,7 +690,6 @@
                 main.appendChild(areaBadge);
             }
 
-            // Impact badge - display the value as-is from the database
             if (currentVuln.impact && currentVuln.impact.trim() !== '') {
                 const impactBadge = document.createElement('div');
                 impactBadge.className = 'impact-badge';
@@ -699,13 +698,11 @@
                 main.appendChild(impactBadge);
             }
 
-            // Description - using textContent for safety
             const desc = document.createElement('div');
             desc.className = 'description';
             desc.textContent = currentVuln.description || 'No description available';
             main.appendChild(desc);
 
-            // Language selector
             if (hasPhp || hasPython || hasNode) {
                 const langDiv = document.createElement('div');
                 langDiv.className = 'language-selector';
@@ -743,7 +740,6 @@
                 main.appendChild(noCodeMsg);
             }
 
-            // Toggle buttons
             const toggleDiv = document.createElement('div');
             toggleDiv.className = 'toggle-buttons';
 
@@ -761,13 +757,11 @@
 
             main.appendChild(toggleDiv);
 
-            // Code example - using textContent, NO HTML ESCAPING NEEDED
             const codeBlock = document.createElement('div');
             codeBlock.className = 'example-code';
             codeBlock.textContent = exampleText;
             main.appendChild(codeBlock);
 
-            // Explanation - using textContent
             if (currentVuln.explanation && currentVuln.explanation.trim() !== '') {
                 const explSection = document.createElement('div');
                 explSection.className = 'explanation-section';
